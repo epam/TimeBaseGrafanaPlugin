@@ -14,13 +14,10 @@ jobs:
     container: node:12-alpine3.12
     if: "!contains( github.event.head_commit.message, 'RobotBuild' )"
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Cache yarn dependencies
-        uses: actions/cache@v2
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
         with:
-          path: ~/node_modules
-          key: v1-yarn-deps-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: v1-yarn-deps-
-      - name: Build with yarn
-        run: yarn install && yarn build
+          node-version: '12'
+          cache: 'yarn'
+      - run: yarn install
+      - run: yarn build
