@@ -1,0 +1,29 @@
+{
+  "$schema": "https://raw.githubusercontent.com/grafana/grafana/master/docs/sources/developers/plugins/plugin.schema.json",
+  "type": "datasource",
+  "name": "epam-timebase-datasource",
+  "id": "epam-timebase-datasource",
+  "metrics": true,
+  "annotations": true,
+  "streaming": false,
+  "info": {
+    "description": "TimeBase datasource",
+    "author": {
+      "name": "EPAM Systems, Inc.",
+      "url": "epam.com"
+    },
+    "keywords": [],
+    "logos": {
+      "small": "img/logo.svg",
+      "large": "img/logo.svg"
+    },
+    "links": [],
+    "screenshots": [],
+    "version": "%VERSION%",
+    "updated": "%TODAY%"
+  },
+  "dependencies": {
+    "grafanaDependency": ">=7.5.8",
+    "plugins": []
+  }
+}
