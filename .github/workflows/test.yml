@@ -1,4 +1,4 @@
-name: Build
+name: Test
 
 on:
   workflow_dispatch:
@@ -16,12 +16,11 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-      - name: Cache node dependencies
+      - name: Cache yarn dependencies
         uses: actions/cache@v2
         with:
           path: ~/node_modules
-          key: node_modules
-          restore-keys: |
-            node_modules
+          key: v1-yarn-deps-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: v1-yarn-deps-
       - name: Build with yarn
         run: yarn install && yarn build
