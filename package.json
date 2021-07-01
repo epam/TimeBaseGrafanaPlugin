@@ -10,7 +10,7 @@
     "author": "EPAM Systems, Inc.",
     "license": "Apache-2.0",
     "engines": {
-        "node": ">=12 <=13"
+        "node": ">=14 <=15"
     },
     "devDependencies": {
       "@grafana/data": "7.5.8",
