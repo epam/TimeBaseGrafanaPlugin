@@ -1,12 +1,12 @@
 # EPAM TimeBase Datasource plugin
 
-This plugin provides ability to visualize data from TimeBase database by EPAM. More about TimeBase [here](https://kb.stage.shiftmarketsdev.com/).
+This plugin provides ability to visualize data from TimeBase database by EPAM. More about TimeBase [here](https://kb.timebase.info/).
 
 ## What functionality provides this plugin?
 TimeBase grafana plugin provides wide range of instruments for time-series processing in analyzing. Wide variety of functions 
 include functions from financial analysis domain, statistics, etc. 
 
-[Link to plugin distribution](https://deltix-installers.s3.eu-west-3.amazonaws.com/grafana/epam-timebase-datasource-1.0.5.zip)
+[Link to plugin distribution](https://github.com/epam/TimeBaseGrafanaPlugin/releases/download/1.0.5/epam-timebase-datasource.zip)
 
 ## Working with SSO on TimeBase WebAdmin
 

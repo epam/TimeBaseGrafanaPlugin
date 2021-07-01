@@ -24,7 +24,7 @@ jobs:
         with:
           version: ${{ steps.previoustag.outputs.tag }}
       - run: 'sed -i "s/ \"version\":.*/ \"version\": \"${{ steps.semvers.outputs.patch }}\",/" package.json'
-      - run: 'sed -i "s/epam-timebase-datasource-.*.zip/epam-timebase-datasource-${{ steps.semvers.outputs.patch }}.zip/" README.md'
+      - run: 'sed -i "s/download\\/.*\\/epam-timebase-datasource.zip/download\\/${{ steps.semvers.outputs.patch }}\\/epam-timebase-datasource.zip/" README.md'
       - uses: EndBug/add-and-commit@v7
         with:
           add: 'package.json README.md'
