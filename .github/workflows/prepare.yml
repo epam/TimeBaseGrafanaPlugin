@@ -1,0 +1,32 @@
+name: Prepare
+
+on:
+  push:
+    branches: [release-*]
+
+jobs:
+  Prepare:
+    runs-on: ubuntu-latest
+    if: "!contains( github.event.head_commit.message, 'RobotBuild' )"
+    steps:
+      - uses: actions/checkout@v2.2.0
+        with:
+          fetch-depth: 0
+      - name: 'Get Previous tag'
+        id: previoustag
+        uses: "WyriHaximus/github-action-get-previous-tag@v1"
+        with:
+          fallback: 1.0.0 # Optional fallback tag to use when no tag can be found
+      - name: 'Get next minor version'
+        id: semvers
+        uses: "WyriHaximus/github-action-next-semvers@v1"
+        with:
+          version: ${{ steps.previoustag.outputs.tag }}
+      - run: |
+          sed -i "s/ \"version\":.*/ \"version\": \"${release_tag}\",/" package.json
+          sed -i "s/epam-timebase-datasource-.*.zip/epam-timebase-datasource-${release_tag}.zip/" README.md
+          git diff --quiet && git diff --staged --quiet || git commit -am "RobotBuild ${release_tag}"
+          git tag $ {{ steps.semvers.outputs.patch }}
+          git push origin --tags
+        with:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
