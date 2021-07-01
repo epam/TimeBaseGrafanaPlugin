@@ -1,5 +1,6 @@
 import { SegmentInput } from '@grafana/ui';
-import { css, cx } from 'emotion';
+import { css } from '@emotion/react';
+import cx from 'classnames';
 import React, { PureComponent, RefObject } from 'react';
 
 import { commonStyles } from '../../utils/styles';

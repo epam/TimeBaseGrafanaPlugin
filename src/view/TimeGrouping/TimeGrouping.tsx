@@ -1,6 +1,7 @@
 import { SelectableValue } from '@grafana/data';
 import { Segment } from '@grafana/ui';
-import { css, cx } from 'emotion';
+import { css } from '@emotion/react';
+import cx from 'classnames';
 import React, { PureComponent } from 'react';
 
 import { getReplacedValue } from '../../utils/variables';

@@ -1,6 +1,7 @@
 import { SelectableValue } from '@grafana/data';
 import { Button, Input, MultiSelect, Segment, Select } from '@grafana/ui';
-import { css, cx } from 'emotion';
+import { css } from '@emotion/react';
+import cx from 'classnames';
 import React, { PureComponent } from 'react';
 
 import { Operator } from '../../utils/constants';
@@ -220,6 +221,7 @@ class Filter extends PureComponent<FilterProps, FilterState> {
 
     return (
       <Input
+        css={{}}
         width={15}
         value={this.state.filterValues[0]}
         onKeyDown={this.onKeyPress}

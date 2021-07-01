@@ -1,7 +1,10 @@
+/** @jsx jsx */
+/** @jsxFrag jsx */
+import { jsx } from '@emotion/react';
 import { QueryEditorProps, SelectableValue } from '@grafana/data';
 import { CascaderOption, TextArea } from '@grafana/ui';
-import { css, cx } from 'emotion';
 import React, { PureComponent } from 'react';
+import cx from 'classnames';
 
 import { ALL_KEY, DataSource } from './DataSource';
 import { MyDataSourceOptions, TimeBaseQuery } from './types';
@@ -554,10 +557,11 @@ export class QueryEditor extends PureComponent<
     }
 
     return (
-      <div className={css({ display: 'flex' })}>
-        <div className={css({ flexGrow: 1 })}>
+      <div css={{ display: 'flex' }}>
+        <div css={{ flexGrow: 1 }}>
           {this.props.query.raw ? (
             <TextArea
+              css={{}}
               aria-label="query"
               rows={3}
               spellCheck={false}

@@ -1,6 +1,6 @@
 import { SelectableValue } from '@grafana/data';
 import { ButtonCascader } from '@grafana/ui';
-import { cx } from 'emotion';
+import cx from 'classnames';
 import React, { PureComponent } from 'react';
 
 import { CHANGE_OPTION_KEY, REMOVE_OPTION_KEY } from '../../utils/constants';

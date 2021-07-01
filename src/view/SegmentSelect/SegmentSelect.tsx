@@ -1,5 +1,5 @@
 import { SelectableValue } from '@grafana/data';
-import { cx } from 'emotion';
+import cx from 'classnames';
 import React, { useRef, useState } from 'react';
 
 import { CustomAsyncSelect } from './CustomAsyncSelect';

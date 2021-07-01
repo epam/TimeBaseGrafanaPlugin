@@ -1,5 +1,6 @@
 import { SelectableValue } from '@grafana/data';
-import { css, cx } from 'emotion';
+import { css } from '@emotion/react';
+import cx from 'classnames';
 import React from 'react';
 import Select from 'react-select';
 import { AsyncPaginate } from 'react-select-async-paginate';
