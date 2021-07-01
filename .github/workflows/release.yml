@@ -47,7 +47,7 @@ jobs:
       - run: yarn build
       - uses: papeloto/action-zip@v1
         with:
-          files: dist/
+          files: dist
           dest: epam-timebase-datasource.zip
       - name: 'Get Previous tag'
         id: previoustag
