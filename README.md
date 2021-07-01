@@ -6,7 +6,7 @@ This plugin provides ability to visualize data from TimeBase database by EPAM. M
 TimeBase grafana plugin provides wide range of instruments for time-series processing in analyzing. Wide variety of functions 
 include functions from financial analysis domain, statistics, etc. 
 
-[Link to plugin distribution](https://deltix-installers.s3.eu-west-3.amazonaws.com/grafana/epam-timebase-datasource-1.0.3.zip)
+[Link to plugin distribution](https://deltix-installers.s3.eu-west-3.amazonaws.com/grafana/epam-timebase-datasource-1.0.4.zip)
 
 ## Working with SSO on TimeBase WebAdmin
 
