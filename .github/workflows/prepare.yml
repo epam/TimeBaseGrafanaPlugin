@@ -22,11 +22,11 @@ jobs:
         uses: "WyriHaximus/github-action-next-semvers@v1"
         with:
           version: ${{ steps.previoustag.outputs.tag }}
-      - run: |
+      - with:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+        run: |
           sed -i "s/ \"version\":.*/ \"version\": \"${release_tag}\",/" package.json
           sed -i "s/epam-timebase-datasource-.*.zip/epam-timebase-datasource-${release_tag}.zip/" README.md
           git diff --quiet && git diff --staged --quiet || git commit -am "RobotBuild ${release_tag}"
           git tag $ {{ steps.semvers.outputs.patch }}
           git push origin --tags
-        with:
-          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
