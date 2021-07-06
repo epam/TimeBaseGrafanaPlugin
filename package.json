@@ -13,10 +13,10 @@
         "node": ">=14 <=15"
     },
     "devDependencies": {
-      "@grafana/data": "8.0.3",
-      "@grafana/runtime": "8.0.3",
-      "@grafana/toolkit": "8.0.3",
-      "@grafana/ui": "8.0.3",
+      "@grafana/data": "8.0.4",
+      "@grafana/runtime": "8.0.4",
+      "@grafana/toolkit": "8.0.4",
+      "@grafana/ui": "8.0.4",
       "@types/lodash": "latest",
       "@types/react-select": "^4.0.15",
       "@testing-library/jest-dom": "5.4.0",
