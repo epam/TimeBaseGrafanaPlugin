@@ -17,9 +17,7 @@ import {
 } from '@grafana/data';
 import { BackendSrvRequest, getBackendSrv, SystemJS, FetchResponse } from '@grafana/runtime';
 import deepEqual from 'fast-deep-equal';
-// import { forkJoin, Observable, Subject, merge } from 'rxjs';
-// import { map, toArray } from 'rxjs/operators';
-import { forkJoin, Observable, Subject, merge } from '@grafana/data/node_modules/rxjs';
+import { forkJoin, from, Observable, Subject, merge } from '@grafana/data/node_modules/rxjs';
 import { map, toArray } from '@grafana/data/node_modules/rxjs/operators';
 
 import { MyDataSourceOptions, TimeBaseQuery, TimeBaseVariableQuery } from './types';
@@ -83,7 +81,7 @@ export class DataSource extends DataSourceApi<TimeBaseQuery, MyDataSourceOptions
     });
   }
 
-  async query(options: DataQueryRequest<TimeBaseQuery>): Observable<DataQueryResponse> {
+  query(options: DataQueryRequest<TimeBaseQuery>): Observable<DataQueryResponse> {
     this.isChangeCurrentInterval = isChangeInterval(this.currentTimeRange, options.range);
     this.scopedVars = options.scopedVars;
     this.currentTimeRange = options.range;
@@ -214,11 +212,11 @@ export class DataSource extends DataSourceApi<TimeBaseQuery, MyDataSourceOptions
 
   async testDatasource() {
     return getBackendSrv()
-      .datasourceRequest({
+      .fetch({
         url: this.getGrafanaUrl('/'),
         method: 'GET',
         headers: HEADERS,
-      })
+      }).toPromise()
       .then((response: { status: number }) => {
         if (response.status === 200) {
           return { status: 'success', message: 'Data source is working', title: 'Success' };
@@ -359,7 +357,7 @@ export class DataSource extends DataSourceApi<TimeBaseQuery, MyDataSourceOptions
     if (body != null) {
       option.data = body;
     }
-    return getBackendSrv().datasourceRequest(option);
+    return getBackendSrv().fetch(option).toPromise();
   }
 
   private fetchGrafanaBackend(method: string, postfix: string, body?: any): Observable<FetchResponse> {
@@ -372,7 +370,7 @@ export class DataSource extends DataSourceApi<TimeBaseQuery, MyDataSourceOptions
     if (body != null) {
       request.data = body;
     }
-    return getBackendSrv().fetch(request);
+    return from(getBackendSrv().fetch(request));
   }
 
   private fetch(method: string, postfix: string, body?: any): Observable<FetchResponse> {
@@ -385,7 +383,7 @@ export class DataSource extends DataSourceApi<TimeBaseQuery, MyDataSourceOptions
     if (body != null) {
       request.data = body;
     }
-    return getBackendSrv().fetch(request);
+    return from(getBackendSrv().fetch(request));
   }
 
   private getUrl(postfix: string): string {
