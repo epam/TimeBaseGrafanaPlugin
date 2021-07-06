@@ -370,7 +370,7 @@ export class QueryEditor extends PureComponent<
   };
 
   onChangeInterval = (value: SelectableValue<number> | null) => {
-    this.props.datasource.isChangeCurrencyInterval = false;
+    this.props.datasource.isChangeCurrentInterval = false;
     this.props.onChange({
       ...this.props.query,
       selectedInterval: value,
@@ -528,12 +528,12 @@ export class QueryEditor extends PureComponent<
       return SPECIAL_VALUES[0];
     }
 
-    if (this.props.query.selectedInterval.isCustom && !this.props.datasource.isChangeCurrencyInterval) {
+    if (this.props.query.selectedInterval.isCustom && !this.props.datasource.isChangeCurrentInterval) {
       return this.props.query.selectedInterval;
     }
 
-    if (isNaN(this.props.query.selectedInterval.value as number) || this.props.datasource.isChangeCurrencyInterval) {
-      if (this.props.datasource.isChangeCurrencyInterval) {
+    if (isNaN(this.props.query.selectedInterval.value as number) || this.props.datasource.isChangeCurrentInterval) {
+      if (this.props.datasource.isChangeCurrentInterval) {
         this.props.query.selectedInterval = SPECIAL_VALUES[1];
       }
       return SPECIAL_VALUES[1];
