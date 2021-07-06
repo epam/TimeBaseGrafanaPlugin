@@ -1,31 +1,37 @@
 import {
+  AnnotationSupport,
   AppEvents,
   ArrayVector,
+  DataFrame,
   DataQueryRequest,
   DataQueryResponse,
   DataSourceApi,
   DataSourceInstanceSettings,
+  FieldType,
+  MutableDataFrame,
   SelectableValue,
+  StandardVariableQuery,
+  StandardVariableSupport,
   TimeRange,
   VariableModel,
-  StandardVariableSupport,
-  StandardVariableQuery,
-  AnnotationSupport,
 } from '@grafana/data';
-import { BackendSrvRequest, getBackendSrv, SystemJS } from '@grafana/runtime';
+import { BackendSrvRequest, getBackendSrv, SystemJS, FetchResponse } from '@grafana/runtime';
 import deepEqual from 'fast-deep-equal';
-import { Subject } from 'rxjs';
+import { forkJoin, from, Observable, Subject, merge } from '@grafana/data/node_modules/rxjs';
+import { map, toArray } from '@grafana/data/node_modules/rxjs/operators';
 
 import { MyDataSourceOptions, TimeBaseQuery, TimeBaseVariableQuery } from './types';
 import { COLUMN_KEY, DATAFRAME_KEY } from './utils/constants';
 import { getFilters, getFunctions, getInterval } from './utils/query';
 import { getIntervals } from './utils/time-intervals';
-import { Schema } from './utils/types';
-import { separateTypeAndField } from './utils/utils';
+import { Schema, TypeDef } from './utils/types';
+import { extractType, separateTypeAndField } from './utils/utils';
 import { getReplacedValue, getVariables } from './utils/variables';
 
 const HEADERS = { 'Content-Type': 'application/json' };
-const PREFIX = '/grafana/v0';
+const GRAFANA_API_PREFIX = '/grafana/v0';
+const API_PREFIX = '/api/v0';
+const DATETIME_FORMAT = 'YYYY-MM-DD[T]HH:mm:ss.SSS[Z]';
 export const ALL_KEY = 'ALL()';
 
 export class VariableSupport extends StandardVariableSupport<DataSourceApi<TimeBaseQuery, MyDataSourceOptions>> {
@@ -49,9 +55,9 @@ export class VariableSupport extends StandardVariableSupport<DataSourceApi<TimeB
 
 export class DataSource extends DataSourceApi<TimeBaseQuery, MyDataSourceOptions> {
   intervals: Array<SelectableValue<any>> = [];
-  currencyTimeRange: TimeRange | undefined;
+  currentTimeRange: TimeRange | undefined;
   scopedVars: any;
-  isChangeCurrencyInterval = false;
+  isChangeCurrentInterval = false;
 
   annotations: AnnotationSupport<TimeBaseQuery> = {};
   queryError: string | undefined;
@@ -75,10 +81,10 @@ export class DataSource extends DataSourceApi<TimeBaseQuery, MyDataSourceOptions
     });
   }
 
-  async query(options: DataQueryRequest<TimeBaseQuery>): Promise<DataQueryResponse> {
-    this.isChangeCurrencyInterval = isChangeInterval(this.currencyTimeRange, options.range);
+  query(options: DataQueryRequest<TimeBaseQuery>): Observable<DataQueryResponse> {
+    this.isChangeCurrentInterval = isChangeInterval(this.currentTimeRange, options.range);
     this.scopedVars = options.scopedVars;
-    this.currencyTimeRange = options.range;
+    this.currentTimeRange = options.range;
     this.emitChangeVariables();
 
     if (
@@ -93,7 +99,20 @@ export class DataSource extends DataSourceApi<TimeBaseQuery, MyDataSourceOptions
       )
     ) {
       this.intervals = getIntervals(options.maxDataPoints as any, options.range);
-      return { data: [] };
+      return new Observable((subscriber) => {
+        subscriber.next({ data: [] });
+      });
+      // return { data: [] };
+    } else if (options.targets.every((target) => target.raw)) {
+      const dataframes = options.targets.map((target) =>
+        this.executeQuery(typeof target.rawQuery === 'string' ? target.rawQuery : '', options.range)
+      );
+      return merge(...dataframes).pipe(
+        toArray(),
+        map((frames: DataFrame[]) => {
+          return { data: frames };
+        })
+      );
     }
 
     options.targets = options.targets.map((target) => {
@@ -108,7 +127,7 @@ export class DataSource extends DataSourceApi<TimeBaseQuery, MyDataSourceOptions
       }
       const interval: any = getInterval(
         target.selectedInterval?.value,
-        this.isChangeCurrencyInterval,
+        this.isChangeCurrentInterval,
         target.selectedInterval?.label,
         this.scopedVars
       );
@@ -145,25 +164,25 @@ export class DataSource extends DataSourceApi<TimeBaseQuery, MyDataSourceOptions
       } as any;
     });
     this.intervals = getIntervals(options.maxDataPoints as any, options.range);
-    const request$ = this.sendRequest('POST', '/queries/select', options);
-    request$
-      .then(() => {
-        this.queryError = undefined;
-      })
-      .catch((er: HttpError) => {
-        this.queryError = er.data.message;
-      });
 
-    return request$.then((result) => {
-      for (const dataFrame of result.data) {
-        if (dataFrame.fields != null) {
-          for (const field of dataFrame.fields) {
-            field.values = new ArrayVector(field.values);
+    const request$ = this.fetchGrafanaBackend('POST', '/queries/select', options);
+    request$.subscribe((event) => {
+      if (event.status !== 200) {
+        this.queryError = event.data.message;
+      }
+    });
+    return request$.pipe(
+      map((result) => {
+        for (const dataFrame of result.data) {
+          if (dataFrame.fields != null) {
+            for (const field of dataFrame.fields) {
+              field.values = new ArrayVector(field.values);
+            }
           }
         }
-      }
-      return result;
-    });
+        return result;
+      })
+    );
   }
 
   async variableQuery(rawQuery: string): Promise<DataQueryResponse> {
@@ -193,11 +212,12 @@ export class DataSource extends DataSourceApi<TimeBaseQuery, MyDataSourceOptions
 
   async testDatasource() {
     return getBackendSrv()
-      .datasourceRequest({
-        url: this.getUrl('/'),
+      .fetch({
+        url: this.getGrafanaUrl('/'),
         method: 'GET',
         headers: HEADERS,
       })
+      .toPromise()
       .then((response: { status: number }) => {
         if (response.status === 200) {
           return { status: 'success', message: 'Data source is working', title: 'Success' };
@@ -255,6 +275,51 @@ export class DataSource extends DataSourceApi<TimeBaseQuery, MyDataSourceOptions
       });
   }
 
+  describeQuery(query: string): Observable<TypeDef[]> {
+    return this.fetch('POST', '/describe', { query: getReplacedValue(query, this.scopedVars) }).pipe(
+      map((response: FetchResponse<{ types: TypeDef[] }>) => response.data.types)
+    );
+  }
+
+  rawQuery(query: string, range: TimeRange): Observable<any[]> {
+    return this.fetch('POST', '/query', {
+      query: getReplacedValue(query, this.scopedVars),
+      from: range.from.utc().format(DATETIME_FORMAT),
+      to: range.to.utc().format(DATETIME_FORMAT),
+    }).pipe(map((response: FetchResponse<any[]>) => response.data));
+  }
+
+  executeQuery(query: string, range: TimeRange): Observable<DataFrame> {
+    return forkJoin({
+      schema: this.describeQuery(query),
+      data: this.rawQuery(query, range),
+    }).pipe(
+      map((response: { schema: TypeDef[]; data: any[] }) => {
+        const frame = new MutableDataFrame();
+        frame.addField({
+          name: 'timestamp',
+          type: FieldType.time,
+        });
+        frame.addField({
+          name: 'symbol',
+          type: FieldType.string,
+        });
+        for (let typeDef of response.schema) {
+          for (let field of typeDef.fields) {
+            frame.addField({
+              name: field.name,
+              type: extractType(field.type.name),
+            });
+          }
+        }
+        for (let msg of response.data) {
+          frame.add(msg);
+        }
+        return frame;
+      })
+    );
+  }
+
   private emitChangeVariables() {
     const newVariables = getVariables();
     if (this.vars != null && this.vars.length === newVariables.length) {
@@ -268,7 +333,7 @@ export class DataSource extends DataSourceApi<TimeBaseQuery, MyDataSourceOptions
 
   private createIntervalChangeAlert(interval: any, selectedInterval: number | undefined | null) {
     if (
-      this.isChangeCurrencyInterval &&
+      this.isChangeCurrentInterval &&
       interval.intervalType === 'MAX_DATA_POINTS' &&
       selectedInterval != null &&
       !isNaN(selectedInterval) &&
@@ -285,7 +350,7 @@ export class DataSource extends DataSourceApi<TimeBaseQuery, MyDataSourceOptions
 
   private sendRequest(method: string, postfix: string, body?: any): Promise<any> {
     const option: BackendSrvRequest = {
-      url: this.getUrl(postfix),
+      url: this.getGrafanaUrl(postfix),
       method,
       headers: HEADERS,
     };
@@ -293,11 +358,41 @@ export class DataSource extends DataSourceApi<TimeBaseQuery, MyDataSourceOptions
     if (body != null) {
       option.data = body;
     }
-    return getBackendSrv().datasourceRequest(option);
+    return getBackendSrv().fetch(option).toPromise();
+  }
+
+  private fetchGrafanaBackend(method: string, postfix: string, body?: any): Observable<FetchResponse> {
+    const request: BackendSrvRequest = {
+      url: this.getGrafanaUrl(postfix),
+      method,
+      headers: HEADERS,
+    };
+
+    if (body != null) {
+      request.data = body;
+    }
+    return from(getBackendSrv().fetch(request));
+  }
+
+  private fetch(method: string, postfix: string, body?: any): Observable<FetchResponse> {
+    const request: BackendSrvRequest = {
+      url: this.getUrl(postfix),
+      method,
+      headers: HEADERS,
+    };
+
+    if (body != null) {
+      request.data = body;
+    }
+    return from(getBackendSrv().fetch(request));
   }
 
   private getUrl(postfix: string): string {
-    return `${this.url}${PREFIX}${postfix}`;
+    return `${this.url}${API_PREFIX}${postfix}`;
+  }
+
+  private getGrafanaUrl(postfix: string): string {
+    return `${this.url}${GRAFANA_API_PREFIX}${postfix}`;
   }
 }
 
