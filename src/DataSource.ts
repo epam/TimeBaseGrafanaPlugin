@@ -5,6 +5,7 @@ import {
   DataFrame,
   DataQueryRequest,
   DataQueryResponse,
+  DataQueryResponseData,
   DataSourceApi,
   DataSourceInstanceSettings,
   FieldType,
@@ -18,7 +19,7 @@ import {
 import { BackendSrvRequest, getBackendSrv, SystemJS, FetchResponse } from '@grafana/runtime';
 import deepEqual from 'fast-deep-equal';
 import { forkJoin, from, Observable, Subject, merge } from '@grafana/data/node_modules/rxjs';
-import { map, toArray } from '@grafana/data/node_modules/rxjs/operators';
+import { map, toArray, mergeMap } from '@grafana/data/node_modules/rxjs/operators';
 
 import { MyDataSourceOptions, TimeBaseQuery, TimeBaseVariableQuery } from './types';
 import { COLUMN_KEY, DATAFRAME_KEY } from './utils/constants';
@@ -105,7 +106,11 @@ export class DataSource extends DataSourceApi<TimeBaseQuery, MyDataSourceOptions
       // return { data: [] };
     } else if (options.targets.every((target) => target.raw)) {
       const dataframes = options.targets.map((target) =>
-        this.executeQuery(typeof target.rawQuery === 'string' ? target.rawQuery : '', options.range)
+        this.executeQuery(
+          typeof target.rawQuery === 'string' ? target.rawQuery : '',
+          options.range,
+          target.variableQuery
+        )
       );
       return merge(...dataframes).pipe(
         toArray(),
@@ -115,72 +120,79 @@ export class DataSource extends DataSourceApi<TimeBaseQuery, MyDataSourceOptions
       );
     }
 
-    options.targets = options.targets.map((target) => {
-      if (target.raw) {
+    const rawTargets = options.targets
+      .filter((target) => target.raw)
+      .map((target) =>
+        this.executeQuery(
+          typeof target.rawQuery === 'string' ? target.rawQuery : '',
+          options.range,
+          target.variableQuery
+        )
+      );
+
+    options.targets = options.targets
+      .filter((target) => !target.raw)
+      .map((target) => {
+        const interval: any = getInterval(
+          target.selectedInterval?.value,
+          this.isChangeCurrentInterval,
+          target.selectedInterval?.label,
+          this.scopedVars
+        );
+        this.createIntervalChangeAlert(
+          interval,
+          target.selectedInterval?.isCustom ? null : target.selectedInterval?.value
+        );
+
         return {
           refId: target.refId,
-          raw: true,
-          rawQuery: getReplacedValue(target.rawQuery, options.scopedVars),
-          variableQuery: target.variableQuery,
+          stream: getReplacedValue(target.selectedStream, options.scopedVars),
+          queryType: 'CUSTOM',
           view: target.requestType == null ? DATAFRAME_KEY : target.requestType,
+          symbols:
+            target.selectedSymbol != null && target.selectedSymbol !== '' && target.selectedSymbol !== ALL_KEY
+              ? [getReplacedValue(target.selectedSymbol, options.scopedVars)]
+              : [],
+          hide: target.hide,
+          types: [],
+          functions: getFunctions(target.selects, options.scopedVars),
+          interval,
+          filters: getFilters(target.filters, options.scopedVars),
+          groupBy:
+            target.selectedGroups == null
+              ? []
+              : target.selectedGroups.map((group: string) => {
+                  const [type, field] = separateTypeAndField(group);
+                  return { type, name: field };
+                }),
+          groupByView: target.selectedGroups == null ? null : target.selectedOption || COLUMN_KEY,
+          rawQuery: getReplacedValue(target.rawQuery, options.scopedVars),
+          raw: target.raw,
+          variableQuery: target.variableQuery,
         } as any;
-      }
-      const interval: any = getInterval(
-        target.selectedInterval?.value,
-        this.isChangeCurrentInterval,
-        target.selectedInterval?.label,
-        this.scopedVars
-      );
-      this.createIntervalChangeAlert(
-        interval,
-        target.selectedInterval?.isCustom ? null : target.selectedInterval?.value
-      );
-
-      return {
-        refId: target.refId,
-        stream: getReplacedValue(target.selectedStream, options.scopedVars),
-        queryType: 'CUSTOM',
-        view: target.requestType == null ? DATAFRAME_KEY : target.requestType,
-        symbols:
-          target.selectedSymbol != null && target.selectedSymbol !== '' && target.selectedSymbol !== ALL_KEY
-            ? [getReplacedValue(target.selectedSymbol, options.scopedVars)]
-            : [],
-        hide: target.hide,
-        types: [],
-        functions: getFunctions(target.selects, options.scopedVars),
-        interval,
-        filters: getFilters(target.filters, options.scopedVars),
-        groupBy:
-          target.selectedGroups == null
-            ? []
-            : target.selectedGroups.map((group: string) => {
-                const [type, field] = separateTypeAndField(group);
-                return { type, name: field };
-              }),
-        groupByView: target.selectedGroups == null ? null : target.selectedOption || COLUMN_KEY,
-        rawQuery: getReplacedValue(target.rawQuery, options.scopedVars),
-        raw: target.raw,
-        variableQuery: target.variableQuery,
-      } as any;
-    });
+      });
     this.intervals = getIntervals(options.maxDataPoints as any, options.range);
 
-    const request$ = this.fetchGrafanaBackend('POST', '/queries/select', options);
+    const request$: Observable<FetchResponse> = this.fetchGrafanaBackend('POST', '/queries/select', options);
+
     request$.subscribe((event) => {
       if (event.status !== 200) {
         this.queryError = event.data.message;
       }
     });
-    return request$.pipe(
-      map((result) => {
-        for (const dataFrame of result.data) {
-          if (dataFrame.fields != null) {
-            for (const field of dataFrame.fields) {
-              field.values = new ArrayVector(field.values);
-            }
-          }
-        }
-        return result;
+
+    const otherTargets: Observable<DataQueryResponseData> = request$.pipe(
+      map((response) => response.data),
+      mergeMap((data: DataQueryResponseData) => data),
+      map((data: DataQueryResponseData) => {
+        return 'target' in data ? data : new MutableDataFrame(data);
+      })
+    );
+
+    return merge(...rawTargets, otherTargets).pipe(
+      toArray(),
+      map((data: DataQueryResponseData[]) => {
+        return { data: data };
       })
     );
   }
@@ -281,18 +293,18 @@ export class DataSource extends DataSourceApi<TimeBaseQuery, MyDataSourceOptions
     );
   }
 
-  rawQuery(query: string, range: TimeRange): Observable<any[]> {
+  rawQuery(query: string, range: TimeRange, variableQuery: boolean): Observable<any[]> {
     return this.fetch('POST', '/query', {
       query: getReplacedValue(query, this.scopedVars),
-      from: range.from.utc().format(DATETIME_FORMAT),
-      to: range.to.utc().format(DATETIME_FORMAT),
+      from: variableQuery ? null : range.from.utc().format(DATETIME_FORMAT),
+      to: variableQuery ? null : range.to.utc().format(DATETIME_FORMAT),
     }).pipe(map((response: FetchResponse<any[]>) => response.data));
   }
 
-  executeQuery(query: string, range: TimeRange): Observable<DataFrame> {
+  executeQuery(query: string, range: TimeRange, variableQuery: boolean): Observable<DataFrame> {
     return forkJoin({
       schema: this.describeQuery(query),
-      data: this.rawQuery(query, range),
+      data: this.rawQuery(query, range, variableQuery),
     }).pipe(
       map((response: { schema: TypeDef[]; data: any[] }) => {
         const frame = new MutableDataFrame();
