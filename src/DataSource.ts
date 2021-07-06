@@ -216,7 +216,8 @@ export class DataSource extends DataSourceApi<TimeBaseQuery, MyDataSourceOptions
         url: this.getGrafanaUrl('/'),
         method: 'GET',
         headers: HEADERS,
-      }).toPromise()
+      })
+      .toPromise()
       .then((response: { status: number }) => {
         if (response.status === 200) {
           return { status: 'success', message: 'Data source is working', title: 'Success' };
