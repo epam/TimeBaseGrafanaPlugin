@@ -8,18 +8,20 @@ import {
   DataQueryResponseData,
   DataSourceApi,
   DataSourceInstanceSettings,
+  dateTimeForTimeZone,
   FieldType,
   MutableDataFrame,
   SelectableValue,
   StandardVariableQuery,
   StandardVariableSupport,
   TimeRange,
+  TimeSeries,
   VariableModel,
 } from '@grafana/data';
-import { BackendSrvRequest, getBackendSrv, SystemJS, FetchResponse } from '@grafana/runtime';
+import { BackendSrvRequest, FetchResponse, getBackendSrv, SystemJS } from '@grafana/runtime';
 import deepEqual from 'fast-deep-equal';
-import { forkJoin, from, Observable, Subject, merge } from '@grafana/data/node_modules/rxjs';
-import { map, toArray, mergeMap } from '@grafana/data/node_modules/rxjs/operators';
+import { forkJoin, from, merge, Observable, Subject } from '@grafana/data/node_modules/rxjs';
+import { map, mergeMap, toArray } from '@grafana/data/node_modules/rxjs/operators';
 
 import { MyDataSourceOptions, TimeBaseQuery, TimeBaseVariableQuery } from './types';
 import { COLUMN_KEY, DATAFRAME_KEY } from './utils/constants';
@@ -109,12 +111,13 @@ export class DataSource extends DataSourceApi<TimeBaseQuery, MyDataSourceOptions
         this.executeQuery(
           typeof target.rawQuery === 'string' ? target.rawQuery : '',
           options.range,
-          target.variableQuery
+          target.variableQuery,
+          target.requestType == null ? DATAFRAME_KEY : target.requestType
         )
       );
       return merge(...dataframes).pipe(
         toArray(),
-        map((frames: DataFrame[]) => {
+        map((frames: DataQueryResponseData) => {
           return { data: frames };
         })
       );
@@ -126,7 +129,8 @@ export class DataSource extends DataSourceApi<TimeBaseQuery, MyDataSourceOptions
         this.executeQuery(
           typeof target.rawQuery === 'string' ? target.rawQuery : '',
           options.range,
-          target.variableQuery
+          target.variableQuery,
+          target.requestType == null ? DATAFRAME_KEY : target.requestType
         )
       );
 
@@ -301,7 +305,60 @@ export class DataSource extends DataSourceApi<TimeBaseQuery, MyDataSourceOptions
     }).pipe(map((response: FetchResponse<any[]>) => response.data));
   }
 
-  executeQuery(query: string, range: TimeRange, variableQuery: boolean): Observable<DataFrame> {
+  executeQuery(
+    query: string,
+    range: TimeRange,
+    variableQuery: boolean,
+    type: string
+  ): Observable<TimeSeries | DataFrame> {
+    if (type === DATAFRAME_KEY) {
+      return this.executeDataFrameQuery(query, range, variableQuery);
+    } else {
+      return this.executeTimeSeriesQuery(query, range, variableQuery);
+    }
+  }
+
+  executeTimeSeriesQuery(query: string, range: TimeRange, variableQuery: boolean): Observable<TimeSeries> {
+    return forkJoin({
+      schema: this.describeQuery(query),
+      data: this.rawQuery(query, range, variableQuery),
+    }).pipe(
+      map((response: { schema: TypeDef[]; data: any[] }) => {
+        const numeric = new Set<string>();
+        const map = new Map<string, TimeSeries>();
+        map.set('symbol', {
+          target: 'symbol',
+          datapoints: [],
+        });
+        for (let typeDef of response.schema) {
+          for (let field of typeDef.fields) {
+            map.set(field.name, {
+              target: field.name,
+              datapoints: [],
+            });
+            if (extractType(field.type.name) === FieldType.number) {
+              numeric.add(field.type.name);
+            }
+          }
+        }
+        for (let msg of response.data) {
+          const timestampString: string = msg.timestamp;
+          const millis: number = +timestampString.substr(20, 3);
+          const timestamp: number = dateTimeForTimeZone('utc', timestampString, DATETIME_FORMAT).unix() * 1000 + millis;
+          for (let key in msg) {
+            if (msg.hasOwnProperty(key)) {
+              map.get(key)?.datapoints.push([numeric.has(key) ? +msg[key] : msg[key], timestamp]);
+            }
+          }
+        }
+        console.log(map);
+        return [...map.values()];
+      }),
+      mergeMap((timeSeries) => timeSeries)
+    );
+  }
+
+  executeDataFrameQuery(query: string, range: TimeRange, variableQuery: boolean): Observable<DataFrame> {
     return forkJoin({
       schema: this.describeQuery(query),
       data: this.rawQuery(query, range, variableQuery),
