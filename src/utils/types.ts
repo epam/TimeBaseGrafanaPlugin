@@ -101,3 +101,16 @@ export interface TypeDef {
   fields: FieldDef[];
   parent: string;
 }
+
+export interface TimeBase {
+  clientVersion: string;
+  serverVersion: string;
+}
+
+export interface Version {
+  name: string;
+  version: string;
+  timestamp: number;
+  authentication: boolean;
+  timebase: TimeBase;
+}
