@@ -210,7 +210,7 @@ export class TimeBaseDataSource extends DataSourceApi<TimeBaseQuery, MyDataSourc
       return {
         status: 'failed',
         message: `You're using old TimeBase WebAdmin version:
-           (${webAdminVersion}). Please install version >= 0.5.5`,
+           (${webAdminVersion}). Some features could be unstable. Please install version >= 0.5.5`,
         title: 'Error',
       };
     }
@@ -218,7 +218,7 @@ export class TimeBaseDataSource extends DataSourceApi<TimeBaseQuery, MyDataSourc
       return {
         status: 'failed',
         message: `You're using old TimeBase server version:
-           (${serverVersion}). Please install version >= 5.5.6`,
+           (${serverVersion}). Some features could be unstable. Please install version >= 5.5.6`,
         title: 'Error',
       };
     }
