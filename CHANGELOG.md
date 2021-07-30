@@ -21,3 +21,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Fixed LICENSE.
 - Plugin id changed from `deltix-timebase-datasource` to `epam-timebase-datasource`.
+
+## [1.0.6] - 2021-07-30
+
+### Added
+- Support for Grafana 8
+- Version checks on plugin config page
+- Signing plugin for certain environments
+
+### Changed
+- Query variables stabilized
+- Plugin uses standard timebase web-admin API

@@ -16,7 +16,7 @@ provider. After that switch "Forward OAuth Identity" should be used to log in to
 ---
 **IMPORTANT NOTICE**
 
-Plugin works with TimeBase Web Admin versions __>=0.4.14__ or __>=0.5.4__ and Grafana versions __>=7.5.8 and <8.0.0__.
+Plugin works with TimeBase Web Admin versions __>=0.5.5__, TimeBase server versions __>=5.5.6__ and Grafana versions __>=7.5.8__.
 
 Other versions are rather incompatible or partially incompatible.
 
