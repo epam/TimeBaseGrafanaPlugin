@@ -214,11 +214,11 @@ export class TimeBaseDataSource extends DataSourceApi<TimeBaseQuery, MyDataSourc
         title: 'Error',
       };
     }
-    if (serverVersion != null && semver.lt(serverVersion, '5.5.5')) {
+    if (serverVersion != null && semver.lt(serverVersion, '5.5.6')) {
       return {
         status: 'failed',
         message: `You're using old TimeBase server version:
-           (${serverVersion}). Please install version >= 5.5.5`,
+           (${serverVersion}). Please install version >= 5.5.6`,
         title: 'Error',
       };
     }
