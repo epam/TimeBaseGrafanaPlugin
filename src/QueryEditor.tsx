@@ -3,7 +3,7 @@ import { CascaderOption, TextArea } from '@grafana/ui';
 import { css, cx } from 'emotion';
 import React, { PureComponent } from 'react';
 
-import { ALL_KEY, DataSource } from './DataSource';
+import { ALL_KEY, TimeBaseDataSource } from './DataSource';
 import { MyDataSourceOptions, TimeBaseQuery } from './types';
 import {
   AGGREGATIONS_KEY,
@@ -63,7 +63,7 @@ interface QueryEditorState {
 }
 
 export class QueryEditor extends PureComponent<
-  QueryEditorProps<DataSource, TimeBaseQuery, MyDataSourceOptions>,
+  QueryEditorProps<TimeBaseDataSource, TimeBaseQuery, MyDataSourceOptions>,
   QueryEditorState
 > {
   state: QueryEditorState = {
@@ -96,7 +96,7 @@ export class QueryEditor extends PureComponent<
     });
   }
 
-  static getDerivedStateFromProps(nextProps: QueryEditorProps<DataSource, TimeBaseQuery, MyDataSourceOptions>) {
+  static getDerivedStateFromProps(nextProps: QueryEditorProps<TimeBaseDataSource, TimeBaseQuery, MyDataSourceOptions>) {
     return {
       selectedStream: nextProps.query.selectedStream == null ? null : toOption(nextProps.query.selectedStream),
       selectedSymbol: nextProps.query.selectedSymbol == null ? null : toOption(nextProps.query.selectedSymbol),

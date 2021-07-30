@@ -1,7 +1,5 @@
 import {
-  AnnotationSupport,
   AppEvents,
-  ArrayVector,
   DataFrame,
   DataQueryRequest,
   DataQueryResponse,
@@ -9,11 +7,11 @@ import {
   DataSourceApi,
   DataSourceInstanceSettings,
   dateTimeForTimeZone,
+  Field,
   FieldType,
+  MetricFindValue,
   MutableDataFrame,
   SelectableValue,
-  StandardVariableQuery,
-  StandardVariableSupport,
   TimeRange,
   TimeSeries,
   VariableModel,
@@ -23,13 +21,14 @@ import deepEqual from 'fast-deep-equal';
 import { forkJoin, from, merge, Observable, Subject } from '@grafana/data/node_modules/rxjs';
 import { map, mergeMap, toArray } from '@grafana/data/node_modules/rxjs/operators';
 
-import { MyDataSourceOptions, TimeBaseQuery, TimeBaseVariableQuery } from './types';
+import { MyDataSourceOptions, TimeBaseQuery } from './types';
 import { COLUMN_KEY, DATAFRAME_KEY } from './utils/constants';
 import { getFilters, getFunctions, getInterval } from './utils/query';
 import { getIntervals } from './utils/time-intervals';
-import { Schema, TypeDef } from './utils/types';
+import { Schema, TypeDef, Version } from './utils/types';
 import { extractType, separateTypeAndField } from './utils/utils';
 import { getReplacedValue, getVariables } from './utils/variables';
+import semver from 'semver';
 
 const HEADERS = { 'Content-Type': 'application/json' };
 const GRAFANA_API_PREFIX = '/grafana/v0';
@@ -37,35 +36,14 @@ const API_PREFIX = '/api/v0';
 const DATETIME_FORMAT = 'YYYY-MM-DD[T]HH:mm:ss.SSS[Z]';
 export const ALL_KEY = 'ALL()';
 
-export class VariableSupport extends StandardVariableSupport<DataSourceApi<TimeBaseQuery, MyDataSourceOptions>> {
-  toDataQuery(query: StandardVariableQuery): TimeBaseQuery {
-    return {
-      filters: [],
-      variableQuery: true,
-      raw: true,
-      rawQuery: query.query,
-      refId: query.refId,
-      requestType: undefined,
-      selectedGroups: [],
-      selectedInterval: null,
-      selectedOption: undefined,
-      selectedStream: undefined,
-      selectedSymbol: null,
-      selects: [],
-    };
-  }
-}
-
-export class DataSource extends DataSourceApi<TimeBaseQuery, MyDataSourceOptions> {
+export class TimeBaseDataSource extends DataSourceApi<TimeBaseQuery, MyDataSourceOptions> {
   intervals: Array<SelectableValue<any>> = [];
   currentTimeRange: TimeRange | undefined;
   scopedVars: any;
   isChangeCurrentInterval = false;
 
-  annotations: AnnotationSupport<TimeBaseQuery> = {};
   queryError: string | undefined;
-  variables$ = new Subject<VariableModel>();
-  variables: VariableSupport = new VariableSupport();
+  variables$: Subject<VariableModel>;
   private vars: VariableModel[] = [];
   private appEvents: any;
   private url: string | undefined;
@@ -74,6 +52,8 @@ export class DataSource extends DataSourceApi<TimeBaseQuery, MyDataSourceOptions
   constructor(instanceSettings: DataSourceInstanceSettings<MyDataSourceOptions>) {
     super(instanceSettings);
     this.url = instanceSettings.url;
+    this.variables$ = new Subject<VariableModel>();
+    this.annotations = {};
 
     if (typeof instanceSettings.basicAuth === 'string' && instanceSettings.basicAuth.length > 0) {
       (HEADERS as any)['Authorization'] = instanceSettings.basicAuth;
@@ -201,63 +181,81 @@ export class DataSource extends DataSourceApi<TimeBaseQuery, MyDataSourceOptions
     );
   }
 
-  async variableQuery(rawQuery: string): Promise<DataQueryResponse> {
-    const options = {
-      rawQuery: rawQuery,
-    };
-    const request$ = this.sendRequest('POST', '/queries/variables', options);
-    request$
-      .then(() => {
-        this.queryError = undefined;
-      })
-      .catch((er: HttpError) => {
-        this.queryError = er.data.message;
-      });
-
-    return request$.then((result) => {
-      for (const dataFrame of result.data) {
-        if (dataFrame.fields != null) {
-          for (const field of dataFrame.fields) {
-            field.values = new ArrayVector(field.values);
-          }
-        }
-      }
-      return result;
-    });
-  }
-
   async testDatasource() {
-    return getBackendSrv()
-      .fetch({
-        url: this.getGrafanaUrl('/'),
-        method: 'GET',
-        headers: HEADERS,
-      })
-      .toPromise()
-      .then((response: { status: number }) => {
+    return this.sendRequest('GET', '/')
+      .then((response: FetchResponse<Version>) => {
+        const versionCheckResult = TimeBaseDataSource.versionCheck(
+          response.data.version,
+          response.data?.timebase?.serverVersion
+        );
+        if (versionCheckResult.status === 'failed') {
+          return versionCheckResult;
+        }
         if (response.status === 200) {
           return { status: 'success', message: 'Data source is working', title: 'Success' };
+        } else {
+          return { status: 'failed', message: `Received status ${response.status}`, title: 'Error' };
         }
-
-        return;
       })
       .catch((er: HttpError) => {
         return { status: 'failed', message: er.data.error_description, title: 'Error' };
       });
   }
 
-  async metricFindQuery(query: TimeBaseVariableQuery, options?: any) {
-    const response = await this.variableQuery(query.rawQuery);
-    return response.data.map((frame) => ({ text: frame.name }));
+  private static versionCheck(
+    webAdminVersion: string,
+    serverVersion?: string
+  ): { status: string; message: string; title: string } {
+    if (semver.lt(webAdminVersion, '0.5.5')) {
+      return {
+        status: 'failed',
+        message: `You're using old TimeBase WebAdmin version:
+           (${webAdminVersion}). Please install version >= 0.5.5`,
+        title: 'Error',
+      };
+    }
+    if (serverVersion != null && semver.lt(serverVersion, '5.5.6')) {
+      return {
+        status: 'failed',
+        message: `You're using old TimeBase server version:
+           (${serverVersion}). Please install version >= 5.5.6`,
+        title: 'Error',
+      };
+    }
+    return {
+      status: 'success',
+      message: '',
+      title: 'Success',
+    };
+  }
+
+  async metricFindQuery(query: string, options?: any): Promise<MetricFindValue[]> {
+    const response = await this.executeVariableQuery(getReplacedValue(query, this.scopedVars));
+    if (response.error != null) {
+      this.createAlert(response.error.data?.message || response.error.message);
+      return [];
+    }
+    if (response.dataframe == null) {
+      return [];
+    }
+    const fields = response.dataframe.fields.filter((field) => field.name === '__var');
+    if (fields.length === 0) {
+      this.createAlert(
+        "To use some field as variable you should name it '__var'. Example: select symbol as '__var' from stream"
+      );
+      return [];
+    }
+    const field: Field = fields[0];
+    return field.values.toArray().map((value) => ({ text: value }));
   }
 
   getGroupByViewOptions() {
-    return this.sendRequest('GET', '/groupByViewOptions').then((result) => result.data);
+    return this.sendGrafanaRequest('GET', '/groupByViewOptions').then((result) => result.data);
   }
 
   getStreams(template: string, offset: number): Promise<{ list: string[]; hasMore: boolean }> {
     const templateStream = getReplacedValue(template, this.scopedVars);
-    return this.sendRequest('GET', `/streams?template=${templateStream}&offset=${offset}&limit=50`)
+    return this.sendGrafanaRequest('GET', `/streams?template=${templateStream}&offset=${offset}&limit=50`)
       .then((result) => result.data)
       .catch((er: HttpError) => {
         if (er.status !== 400) {
@@ -269,7 +267,7 @@ export class DataSource extends DataSourceApi<TimeBaseQuery, MyDataSourceOptions
   getSymbols(template: string, stream: string, offset: number): Promise<{ list: string[]; hasMore: boolean }> {
     const templateStream = getReplacedValue(stream, this.scopedVars);
     const templateSymbol = getReplacedValue(template, this.scopedVars);
-    return this.sendRequest(
+    return this.sendGrafanaRequest(
       'GET',
       `/symbols?template=${templateSymbol}&stream=${templateStream}&offset=${offset}&limit=50`
     )
@@ -282,7 +280,7 @@ export class DataSource extends DataSourceApi<TimeBaseQuery, MyDataSourceOptions
   }
 
   getStreamSchema(stream: string): Promise<Schema> {
-    return this.sendRequest('GET', `/schema?stream=${getReplacedValue(stream, this.scopedVars)}`)
+    return this.sendGrafanaRequest('GET', `/schema?stream=${getReplacedValue(stream, this.scopedVars)}`)
       .then((result) => result.data)
       .catch((er: HttpError) => {
         if (er.status !== 400) {
@@ -303,6 +301,50 @@ export class DataSource extends DataSourceApi<TimeBaseQuery, MyDataSourceOptions
       from: variableQuery ? null : range.from.utc().format(DATETIME_FORMAT),
       to: variableQuery ? null : range.to.utc().format(DATETIME_FORMAT),
     }).pipe(map((response: FetchResponse<any[]>) => response.data));
+  }
+
+  variableQuery(query: string): Observable<any[]> {
+    return this.fetch('POST', '/query', {
+      query: getReplacedValue(query, this.scopedVars),
+      from: null,
+      to: null,
+    }).pipe(map((response: FetchResponse<any[]>) => response.data));
+  }
+
+  executeVariableQuery(query: string): Promise<{ error?: HttpError; dataframe?: DataFrame }> {
+    return forkJoin({
+      schema: this.describeQuery(query),
+      data: this.variableQuery(query),
+    })
+      .pipe(
+        map((response: { schema: TypeDef[]; data: any[] }) => {
+          const frame = new MutableDataFrame();
+          frame.addField({
+            name: 'timestamp',
+            type: FieldType.time,
+          });
+          frame.addField({
+            name: 'symbol',
+            type: FieldType.string,
+          });
+          for (let typeDef of response.schema) {
+            for (let field of typeDef.fields) {
+              frame.addField({
+                name: field.name,
+                type: extractType(field.type.name),
+              });
+            }
+          }
+          for (let msg of response.data) {
+            frame.add(msg);
+          }
+          return { dataframe: frame };
+        })
+      )
+      .toPromise()
+      .catch((er: HttpError) => {
+        return { error: er };
+      });
   }
 
   executeQuery(
@@ -417,7 +459,7 @@ export class DataSource extends DataSourceApi<TimeBaseQuery, MyDataSourceOptions
     this.appEvents.emit(AppEvents.alertWarning, [text]);
   }
 
-  private sendRequest(method: string, postfix: string, body?: any): Promise<any> {
+  private sendGrafanaRequest(method: string, postfix: string, body?: any): Promise<any> {
     const option: BackendSrvRequest = {
       url: this.getGrafanaUrl(postfix),
       method,
@@ -428,6 +470,16 @@ export class DataSource extends DataSourceApi<TimeBaseQuery, MyDataSourceOptions
       option.data = body;
     }
     return getBackendSrv().fetch(option).toPromise();
+  }
+
+  private sendRequest(
+    method: string,
+    postfix: string,
+    body?: any,
+    showSuccessAlert = false,
+    showErrorAlert = false
+  ): Promise<any> {
+    return this.fetch(method, postfix, body, showSuccessAlert, showErrorAlert).toPromise();
   }
 
   private fetchGrafanaBackend(method: string, postfix: string, body?: any): Observable<FetchResponse> {
@@ -443,11 +495,19 @@ export class DataSource extends DataSourceApi<TimeBaseQuery, MyDataSourceOptions
     return from(getBackendSrv().fetch(request));
   }
 
-  private fetch(method: string, postfix: string, body?: any): Observable<FetchResponse> {
+  private fetch(
+    method: string,
+    postfix: string,
+    body: any,
+    showSuccessAlert = false,
+    showErrorAlert = false
+  ): Observable<FetchResponse> {
     const request: BackendSrvRequest = {
       url: this.getUrl(postfix),
       method,
       headers: HEADERS,
+      showSuccessAlert: showSuccessAlert,
+      showErrorAlert: showErrorAlert,
     };
 
     if (body != null) {
