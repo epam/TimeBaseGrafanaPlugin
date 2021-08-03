@@ -24,7 +24,7 @@ jobs:
         with:
           version: ${{ steps.previoustag.outputs.tag }}
       - run: 'sed -i "s/ \"version\":.*/ \"version\": \"${{ steps.semvers.outputs.patch }}\",/" package.json'
-      - run: 'sed -i "s/epam-timebase-datasource-.*.zip/epam-timebase-datasource-${{ steps.semvers.outputs.patch }}.zip/" README.md'
+      - run: 'sed -i "s/download\\/.*\\/epam-timebase-datasource.zip/download\\/${{ steps.semvers.outputs.patch }}\\/epam-timebase-datasource.zip/" README.md'
       - uses: EndBug/add-and-commit@v7
         with:
           add: 'package.json README.md'
@@ -41,13 +41,17 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-node@v2
         with:
-          node-version: '12'
+          node-version: '14'
           cache: 'yarn'
       - run: yarn install
       - run: yarn build
+      - run: yarn sign
+        env:
+          GRAFANA_API_KEY: ${{ secrets.GRAFANA_API_KEY }}
+          GRAFANA_ROOT_URLS: ${{ secrets.GRAFANA_ROOT_URLS }}
       - uses: papeloto/action-zip@v1
         with:
-          files: dist/
+          files: dist
           dest: epam-timebase-datasource.zip
       - name: 'Get Previous tag'
         id: previoustag

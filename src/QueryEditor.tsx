@@ -3,7 +3,7 @@ import { CascaderOption, TextArea } from '@grafana/ui';
 import { css, cx } from 'emotion';
 import React, { PureComponent } from 'react';
 
-import { ALL_KEY, DataSource } from './DataSource';
+import { ALL_KEY, TimeBaseDataSource } from './DataSource';
 import { MyDataSourceOptions, TimeBaseQuery } from './types';
 import {
   AGGREGATIONS_KEY,
@@ -63,7 +63,7 @@ interface QueryEditorState {
 }
 
 export class QueryEditor extends PureComponent<
-  QueryEditorProps<DataSource, TimeBaseQuery, MyDataSourceOptions>,
+  QueryEditorProps<TimeBaseDataSource, TimeBaseQuery, MyDataSourceOptions>,
   QueryEditorState
 > {
   state: QueryEditorState = {
@@ -96,7 +96,7 @@ export class QueryEditor extends PureComponent<
     });
   }
 
-  static getDerivedStateFromProps(nextProps: QueryEditorProps<DataSource, TimeBaseQuery, MyDataSourceOptions>) {
+  static getDerivedStateFromProps(nextProps: QueryEditorProps<TimeBaseDataSource, TimeBaseQuery, MyDataSourceOptions>) {
     return {
       selectedStream: nextProps.query.selectedStream == null ? null : toOption(nextProps.query.selectedStream),
       selectedSymbol: nextProps.query.selectedSymbol == null ? null : toOption(nextProps.query.selectedSymbol),
@@ -367,7 +367,7 @@ export class QueryEditor extends PureComponent<
   };
 
   onChangeInterval = (value: SelectableValue<number> | null) => {
-    this.props.datasource.isChangeCurrencyInterval = false;
+    this.props.datasource.isChangeCurrentInterval = false;
     this.props.onChange({
       ...this.props.query,
       selectedInterval: value,
@@ -525,12 +525,12 @@ export class QueryEditor extends PureComponent<
       return SPECIAL_VALUES[0];
     }
 
-    if (this.props.query.selectedInterval.isCustom && !this.props.datasource.isChangeCurrencyInterval) {
+    if (this.props.query.selectedInterval.isCustom && !this.props.datasource.isChangeCurrentInterval) {
       return this.props.query.selectedInterval;
     }
 
-    if (isNaN(this.props.query.selectedInterval.value as number) || this.props.datasource.isChangeCurrencyInterval) {
-      if (this.props.datasource.isChangeCurrencyInterval) {
+    if (isNaN(this.props.query.selectedInterval.value as number) || this.props.datasource.isChangeCurrentInterval) {
+      if (this.props.datasource.isChangeCurrentInterval) {
         this.props.query.selectedInterval = SPECIAL_VALUES[1];
       }
       return SPECIAL_VALUES[1];

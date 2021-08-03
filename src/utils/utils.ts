@@ -1,4 +1,4 @@
-import { SelectableValue } from '@grafana/data';
+import { FieldType, SelectableValue } from '@grafana/data';
 
 import { Filter, Select } from '../types';
 import { Operator } from './constants';
@@ -190,4 +190,25 @@ export const getErrorForFields = (
     return serverError;
   }
   return '';
+};
+
+export const extractType = (dataType: string) => {
+  if (dataType === 'INTEGER' || dataType === 'FLOAT') {
+    return FieldType.number;
+  } else if (dataType === 'BOOLEAN') {
+    return FieldType.boolean;
+  } else if (dataType === 'VARCHAR' || dataType === 'CHAR') {
+    return FieldType.string;
+  } else if (dataType === 'TIMESTAMP') {
+    return FieldType.time;
+  } else if (
+    dataType === 'BINARY' ||
+    dataType === 'TIMEOFDAY' ||
+    dataType.startsWith('OBJECT') ||
+    dataType.startsWith('ARRAY')
+  ) {
+    return FieldType.other;
+  } else {
+    return FieldType.string; // for enums
+  }
 };

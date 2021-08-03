@@ -1,7 +1,7 @@
 {
   "$schema": "https://raw.githubusercontent.com/grafana/grafana/master/docs/sources/developers/plugins/plugin.schema.json",
   "type": "datasource",
-  "name": "epam-timebase-datasource",
+  "name": "TimeBase",
   "id": "epam-timebase-datasource",
   "metrics": true,
   "annotations": true,
@@ -22,6 +22,38 @@
     "version": "%VERSION%",
     "updated": "%TODAY%"
   },
+  "routes": [
+    {
+      "path": "",
+      "method": "GET",
+      "tokenAuth": {
+        "url": "{{.JsonData.timebaseUrl}}/oauth/token",
+        "params": {
+          "grant_type": "password",
+          "client_id": "web",
+          "client_secret": "secret",
+          "username": "{{.JsonData.timebaseUser}}",
+          "password": "{{.SecureJsonData.timebasePassword}}",
+          "scope": "trust"
+        }
+      }
+    },
+    {
+      "path": "",
+      "method": "POST",
+      "tokenAuth": {
+        "url": "{{.JsonData.timebaseUrl}}/oauth/token",
+        "params": {
+          "grant_type": "password",
+          "client_id": "web",
+          "client_secret": "secret",
+          "username": "{{.JsonData.timebaseUser}}",
+          "password": "{{.SecureJsonData.timebasePassword}}",
+          "scope": "trust"
+        }
+      }
+    }
+  ],
   "dependencies": {
     "grafanaDependency": ">=7.5.8",
     "plugins": []

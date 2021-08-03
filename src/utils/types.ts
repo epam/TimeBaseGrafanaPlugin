@@ -75,3 +75,42 @@ export enum PropertyType {
   BYTE = 'BYTE',
   BOOLEAN = 'BOOLEAN',
 }
+
+export interface DataTypeDef {
+  encoding?: string;
+  nullable: boolean;
+  name: string;
+  types?: string[];
+  elementType?: DataTypeDef;
+}
+
+export interface FieldDef {
+  name: string;
+  title?: string;
+  hide: boolean;
+  type: DataTypeDef;
+  static: boolean;
+  value?: string;
+}
+
+export interface TypeDef {
+  name: string;
+  title?: string;
+  isEnum: boolean;
+  isAbstract: boolean;
+  fields: FieldDef[];
+  parent: string;
+}
+
+export interface TimeBase {
+  clientVersion: string;
+  serverVersion: string;
+}
+
+export interface Version {
+  name: string;
+  version: string;
+  timestamp: number;
+  authentication: boolean;
+  timebase: TimeBase;
+}
