@@ -6,7 +6,7 @@ This plugin provides ability to visualize data from TimeBase database by EPAM. M
 TimeBase grafana plugin provides wide range of instruments for time-series processing in analyzing. Wide variety of functions
 include functions from financial analysis domain, statistics, etc.
 
-[Link to plugin distribution](https://github.com/epam/TimeBaseGrafanaPlugin/releases/download/1.0.6/epam-timebase-datasource.zip)
+[Link to plugin distribution](https://github.com/epam/TimeBaseGrafanaPlugin/releases/download/1.0.7/epam-timebase-datasource.zip)
 
 ## Working with SSO on TimeBase WebAdmin
 
@@ -26,10 +26,10 @@ Other versions are rather incompatible or partially incompatible.
 
 ### Using `grafana-cli`
 
-1. Run command `grafana-cli --pluginUrl https://github.com/epam/TimeBaseGrafanaPlugin/releases/download/1.0.6/epam-timebase-datasource.zip plugins install epam-timebase-datasource`
+1. Run command `grafana-cli --pluginUrl https://github.com/epam/TimeBaseGrafanaPlugin/releases/download/1.0.7/epam-timebase-datasource.zip plugins install epam-timebase-datasource`
 1. Restart Grafana server.
 
 ### Using environment variable
 
-1. Set environment variable `GF_INSTALL_PLUGINS=https://github.com/epam/TimeBaseGrafanaPlugin/releases/download/1.0.6/epam-timebase-datasource.zip;epam-timebase-datasource`
+1. Set environment variable `GF_INSTALL_PLUGINS=https://github.com/epam/TimeBaseGrafanaPlugin/releases/download/1.0.7/epam-timebase-datasource.zip;epam-timebase-datasource`
 2. Restart grafana server.
