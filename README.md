@@ -1,9 +1,10 @@
 # EPAM TimeBase Datasource plugin for Grafana
 
-This plugin provides ability to visualize data from TimeBase database by EPAM. More about TimeBase [here](https://kb.timebase.info/).
+This plugin provides the ability to visualize data from TimeBase database by EPAM. More about TimeBase [here](https://kb.timebase.info/).
 
 ## What functionality provides this plugin?
-TimeBase grafana plugin provides wide range of instruments for time-series processing in analyzing. Wide variety of functions
+
+TimeBase Grafana plugin provides wide range of instruments for time-series processing in analyzing. Wide variety of functions
 include functions from financial analysis domain, statistics, etc.
 
 ## Prerequisites
