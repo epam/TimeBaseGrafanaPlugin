@@ -100,7 +100,7 @@ Grafana plugin uses TimeBase as a data source. You can use more than one TimeBas
 
 #### Standard Dashboards
 
-> You can [import](https://grafana.com/docs/grafana/latest/dashboards/export-import/#import-dashboard) standard [Ddashboards](https://github.com/epam/TimeBaseGrafanaPlugin/tree/main/dashboards) from the public repository. 
+> You can [import](https://grafana.com/docs/grafana/latest/dashboards/export-import/#import-dashboard) standard [Dashboards](https://github.com/epam/TimeBaseGrafanaPlugin/tree/main/dashboards) from the public repository. 
 
 ![](/src/img/dashboard1.png)
 
@@ -120,18 +120,19 @@ Grafana plugin uses TimeBase as a data source. You can use more than one TimeBas
 
 ### Queries
 
-Plugin allows running TimeBase QQl queries in **visual editor** and **raw query** modes. Click **Edit** icon in to switch between two modes.
+The Plugin allows running TimeBase QQL queries in **visual editor** and **raw query** modes. Click **Edit** icon to switch between two modes.
+
+> Refer to [Grafana Docs](https://grafana.com/docs/grafana/latest/) for more in depth information about all the supported features and tools.
+
 
 #### Visual Editor
 
-In this mode you can use built-in UI elements to run QQL queries to the selected data source and visualize them on the dashboard.
+In this mode you can use built-in UI elements to create and run QQL queries to the selected data source and visualize them on the dashboard.
 
-1. In **Queries** tab select TimeBase plugin in the drop down list. Each custom plugin has own set of parameters. <br>
+1. In **Query** tab select TimeBase plugin in the drop down list. Each custom plugin has own set of parameters. <br>
 ![](/src/img/grafana_plugin_1.png)<br>
 2. You may create just one or a combination of several queries. Click **+ Query** to add another query.<br>
 ![](/src/img/grafana_plugin_2.png)
-
-> Refer to [Grafana Docs](https://grafana.com/docs/grafana/latest/) for more in depth information about all the supported features and tools.
 
 #### Raw Query
 
@@ -225,5 +226,5 @@ Grafana supports **DATAFRAME** and **TIMESERIES** visualization formats. Select 
 * [Grafana Getting Started Documentation](https://grafana.com/docs/grafana/latest/)
 * [Grafana Plugin Installation Guide](https://grafana.com/docs/grafana/latest/plugins/installation/#installing-plugins-manually)
 * [Grafana Plugin CLI Commands](https://grafana.com/docs/grafana/latest/administration/cli/#plugins-commands)
-* [TimeBase Web Admin Installation](admin.html)
-* [TimeBase Deployment Options](docker.html)
+* [TimeBase Web Admin Installation](https://kb.timebase.info/admin.html#deployment)
+* [TimeBase Deployment Options](https://kb.timebase.info/docker.html)
