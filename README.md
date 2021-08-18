@@ -2,6 +2,8 @@
 
 TimeBase Grafana plugin allows visualizing [TimeBase](https://kb.timebase.info/) streams data in [Grafana](https://grafana.com/).
 
+[Link to plugin distribution](https://github.com/epam/TimeBaseGrafanaPlugin/releases/download/1.0.7/epam-timebase-datasource.zip)
+
 ## Functionality
 
 This plugin provides a wide range of instruments for time-series data analysis and processing, including functions from financial analysis domain, statistics, etc.
@@ -9,13 +11,6 @@ This plugin provides a wide range of instruments for time-series data analysis a
 ## Prerequisites
 
 TimeBase plugin uses [TimeBase WebAdmin](https://kb.timebase.info/admin.html) REST API - the required component.
-
-[Link to plugin distribution](https://github.com/epam/TimeBaseGrafanaPlugin/releases/download/1.0.7/epam-timebase-datasource.zip)
-
-## Working with SSO on TimeBase WebAdmin
-
-To work with TimeBase WebAdmin, where SSO is enabled, Grafana should be connected to the same SSO
-provider. After that switch "Forward OAuth Identity" should be used to log in to TimeBase WebAdmin.
 
 ---
 **IMPORTANT NOTICE**
@@ -26,11 +21,16 @@ Other versions are rather incompatible or partially incompatible.
 
 ---
 
+## Working with SSO on TimeBase WebAdmin
+
+To work with TimeBase WebAdmin, where SSO is enabled, Grafana should be connected to the same SSO
+provider. After that switch "Forward OAuth Identity" should be used to log in to TimeBase WebAdmin.
+
 ## Installation
 
 ### Using environment variable
 
-*Use this way with Docker/Kubernetes to install plugin.*
+> Preferred with Docker/Kubernetes.
 
 1. Set environment variable `GF_INSTALL_PLUGINS=https://github.com/epam/TimeBaseGrafanaPlugin/releases/download/1.0.7/epam-timebase-datasource.zip;epam-timebase-datasource` and `GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS=epam-timebase-datasource`.
 2. Restart grafana server.
@@ -71,8 +71,8 @@ GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET: <secret>
 
 1. Click **Server Admin** icon, navigate to **Users** and create a **New User**.
 2. Make sure that user's username matches the corresponding username in Auth0.
-    * Please note, that even though it is required to set the password for a new user, password from Auth0 will **override** the password you provide for the Grafana user. 
 
+> Please note, that even though it is required to set the password for a new user, password from Auth0 will **override** the password you provide for the Grafana user. 
 
 ## How To Use Plugin
 
@@ -96,26 +96,50 @@ Grafana plugin uses TimeBase as a data source. You can use more than one TimeBas
 ![](/src/img/grafana_plugin_settings.png)<br>
 5. Set toggle to **Default** to make the current selection a default data source.
 
-### Creating New Dashboard
+### Dashboards
+
+#### Standard Dashboards
+
+> You can [import](https://grafana.com/docs/grafana/latest/dashboards/export-import/#import-dashboard) standard [Ddashboards](https://github.com/epam/TimeBaseGrafanaPlugin/tree/main/dashboards) from the public repository. 
+
+![](/src/img/dashboard1.png)
+
+**TimeBase Overview** - displays all the available streams (count, names, stream schemas, description), [QQL](https://kb.timebase.info/qql-tut.html#aggregates-and-qql-functions) stateful and stateless functions, stream classes ([messages](https://kb.timebase.info/messages.html)) and fields. 
+
+![](/src/img/dashboard2.png)
+
+**Market Data** - visualization of streams with the available market data. 
+
+#### Create Dashboard
 
 > Refer to [Grafana Docs](https://grafana.com/docs/grafana/latest/) for more in depth information about all the supported features and tools.
 
 1. Go to **Create** menu and click **Dashboard**.
 2. Click **Add new panel** to create a dashboard.<br>
-![](/src/img/create_panel.png)>
+![](/src/img/create_panel.png)
 
 ### Queries
 
-On a new panel you can make queries to the selected data source and visualize them on the dashboard. 
+Plugin allows running TimeBase QQl queries in **visual editor** and **raw query** modes. Click **Edit** icon in to switch between two modes.
 
-> Refer to [Grafana Docs](https://grafana.com/docs/grafana/latest/) for more in depth information about all the supported features and tools.
+#### Visual Editor
+
+In this mode you can use built-in UI elements to run QQL queries to the selected data source and visualize them on the dashboard.
 
 1. In **Queries** tab select TimeBase plugin in the drop down list. Each custom plugin has own set of parameters. <br>
 ![](/src/img/grafana_plugin_1.png)<br>
 2. You may create just one or a combination of several queries. Click **+ Query** to add another query.<br>
 ![](/src/img/grafana_plugin_2.png)
 
-### Query Parameters {#query}
+> Refer to [Grafana Docs](https://grafana.com/docs/grafana/latest/) for more in depth information about all the supported features and tools.
+
+#### Raw Query
+
+![](/src/img/raw.png)
+
+In this mode you switch from the UI to the raw QQL query format. Refer to [QQL Tutorial](https://kb.timebase.info/qql-tut.html) to learn more about the TimeBase query language called QQL. 
+
+#### Parameters
 
 ![](/src/img/grafana_plugin_3.png)
 
@@ -124,10 +148,10 @@ TimeBase plugin offers the following categories of parameters you can use to mak
 * [Stream](#stream)
 * [Symbol](#symbol)
 * [Select](#select)
-* [Group By](#group)
+* [Group By](#group-by)
 * [View](#view)
 
-#### Stream {#stream}
+#### Stream
 
 Time-series data is stored in [streams](https://kb.timebase.info/streams.html). Each TimeBase instance can be seen as a collection of streams. Here you can select a specific stream to visualize data that it stores. 
 
@@ -137,7 +161,7 @@ Time-series data is stored in [streams](https://kb.timebase.info/streams.html). 
 > Available streams are determined by the TimeBase Web Admin back end.
 
 
-#### Symbol {#symbol}
+#### Symbol
 
 Time-series data is recorded in streams in a form of [Messages](https://kb.timebase.info/messages.html). Each message has a `timestamp` (time and date of a message) and `symbol` (specific identifier of a data source like sensor id, trading instrument name etc) that serve for data indexing. You can select a specific symbol to sort stream data by, for example display all readings for a specific IoT sensor (sensor id is a symbol value in this case).
 
@@ -146,7 +170,7 @@ Time-series data is recorded in streams in a form of [Messages](https://kb.timeb
 > Available symbols are determined by the TimeBase Web Admin back end.
  
 
-#### Select {#select}
+#### Select
 
 In this section you can **select** specific message fields to filter your query, perform different data aggregations and  computations using available fields and functions.
 
@@ -180,7 +204,7 @@ Use a set of available aggregations and aliases to manipulate with the selected 
 > Available aggregations are determined by the TimeBase Web Admin back end.
  
 
-#### Group By {#group}
+#### Group By
 
 Use this section to set time intervals and to make additional groupings of the selected data. For example, in case you have selected **All()** symbols from your stream, you can use group by **symbol** to view data for each symbol in the stream. Use a predefined time range options or manually input time range (e.g. 45s) to sort data in time. 
 
@@ -192,7 +216,7 @@ This option is enabled in case you select at least one specific field to Group B
 
 ![](/src/img/group_option.png)
 
-#### View {#view}
+#### View
 
 Grafana supports **DATAFRAME** and **TIMESERIES** visualization formats. Select the format that your plugin supports.   
 
