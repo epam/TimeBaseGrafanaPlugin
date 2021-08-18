@@ -10,7 +10,7 @@ This plugin provides a wide range of instruments for time-series data analysis a
 
 ## Prerequisites
 
-TimeBase plugin uses [TimeBase WebAdmin](https://kb.timebase.info/admin.html) REST API - the required component.
+TimeBase plugin uses [TimeBase Web Admin](https://kb.timebase.info/admin.html) REST API - the required component.
 
 ---
 **IMPORTANT NOTICE**
@@ -20,11 +20,6 @@ Plugin works with TimeBase Web Admin versions __>=0.5.5__, TimeBase server versi
 Other versions are rather incompatible or partially incompatible.
 
 ---
-
-## Working with SSO on TimeBase WebAdmin
-
-To work with TimeBase WebAdmin, where SSO is enabled, Grafana should be connected to the same SSO
-provider. After that switch "Forward OAuth Identity" should be used to log in to TimeBase WebAdmin.
 
 ## Installation
 
@@ -40,39 +35,10 @@ provider. After that switch "Forward OAuth Identity" should be used to log in to
 1. Run command `grafana-cli --pluginUrl https://github.com/epam/TimeBaseGrafanaPlugin/releases/download/1.0.7/epam-timebase-datasource.zip plugins install epam-timebase-datasource`
 2. Restart Grafana server.
 
-## Authentication with Auth0
+## Working with SSO on TimeBase WebAdmin
 
-**Configure [Auth0](https://auth0.com/)**
-
-1. In Applications create a Regular Web Application.
-2. In application Settings set Allowed Callback URLs: `<grafana_base_url>/login/generic_oauth`.
-3. In User Management create a new user. Username and password will be subsequently used by Grafana plugin corresponding users. 
-
-**Configure TimeBase**
-
-Add the following environmental variables to the TimeBase Web Admin chart:
-
-```yaml
-GF_SERVER_ROOT_URL: <grafana_base_url>
-GF_AUTH_GENERIC_OAUTH_ALLOW_SIGN_UP: true
-GF_AUTH_GENERIC_OAUTH_ENABLED: true
-GF_AUTH_GENERIC_OAUTH_NAME: Auth0
-GF_AUTH_GENERIC_OAUTH_SCOPES: openid profile email
-GF_AUTH_GENERIC_OAUTH_TOKEN_URL: https://<your_domain>.auth0.com/oauth/token
-GF_AUTH_GENERIC_OAUTH_AUTH_URL: https://<your_domain>.us.auth0.com/authorize
-GF_AUTH_GENERIC_OAUTH_API_URL: https://<your_domain>.us.auth0.com/userinfo
-GF_AUTH_GENERIC_OAUTH_CLIENT_ID: <client_id>
-GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET: <secret>
-```
-
-**Configure Grafana Plugin** 
-
-<a href="/src/img/grafana_user.png" data-lightbox="image-001" data-title="Configure Grafana Plugin"><img src="/src/img/grafana_user.png" class="zoom"/></a>
-
-1. Click **Server Admin** icon, navigate to **Users** and create a **New User**.
-2. Make sure that user's username matches the corresponding username in Auth0.
-
-> Please note, that even though it is required to set the password for a new user, password from Auth0 will **override** the password you provide for the Grafana user. 
+To work with TimeBase WebAdmin, where SSO is enabled, Grafana should be connected to the same SSO
+provider. After that switch "Forward OAuth Identity" should be used to log in to TimeBase WebAdmin.
 
 ## How To Use Plugin
 
