@@ -67,7 +67,7 @@ GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET: <secret>
 
 **Configure Grafana Plugin** 
 
-<a href="/images/grafana_user.png" data-lightbox="image-001" data-title="Configure Grafana Plugin"><img src="/images/grafana_user.png" class="zoom"/></a>
+<a href="/src/img/grafana_user.png" data-lightbox="image-001" data-title="Configure Grafana Plugin"><img src="/src/img/grafana_user.png" class="zoom"/></a>
 
 1. Click **Server Admin** icon, navigate to **Users** and create a **New User**.
 2. Make sure that user's username matches the corresponding username in Auth0.
@@ -85,7 +85,7 @@ Following sections describe TimeBase plugin functionality. See [Grafana Docs](ht
 Grafana plugin uses TimeBase as a data source. You can use more than one TimeBase instance as Grafana plugin data source. 
 
 1. In the **Configuration** menu select **Data Source**.<br>
-![](/images/data_source.png)<br>
+![](/src/img/data_source.png)<br>
 2. Click **Add Data Source** and find your TimeBase Plugin.
 3. Configure plugin settings
 	+ Name - Plugin name
@@ -93,7 +93,7 @@ Grafana plugin uses TimeBase as a data source. You can use more than one TimeBas
 	+ User - TimeBase Web Admin user Username
 	+ Password - TimeBase Web Admin user Password
 4. Click **Test** to check the connection with TimeBase. You will see a confirmation message in case the connection is successful.<br>
-![](/images/grafana_plugin_settings.png)<br>
+![](/src/img/grafana_plugin_settings.png)<br>
 5. Set toggle to **Default** to make the current selection a default data source.
 
 ### Creating New Dashboard
@@ -102,7 +102,7 @@ Grafana plugin uses TimeBase as a data source. You can use more than one TimeBas
 
 1. Go to **Create** menu and click **Dashboard**.
 2. Click **Add new panel** to create a dashboard.<br>
-![](/images/create_panel.png)>
+![](/src/img/create_panel.png)>
 
 ### Queries
 
@@ -111,13 +111,13 @@ On a new panel you can make queries to the selected data source and visualize th
 > Refer to [Grafana Docs](https://grafana.com/docs/grafana/latest/) for more in depth information about all the supported features and tools.
 
 1. In **Queries** tab select TimeBase plugin in the drop down list. Each custom plugin has own set of parameters. <br>
-![](/images/grafana_plugin_1.png)<br>
+![](/src/img/grafana_plugin_1.png)<br>
 2. You may create just one or a combination of several queries. Click **+ Query** to add another query.<br>
-![](/images/grafana_plugin_2.png)
+![](/src/img/grafana_plugin_2.png)
 
 ### Query Parameters {#query}
 
-![](/images/grafana_plugin_3.png)
+![](/src/img/grafana_plugin_3.png)
 
 TimeBase plugin offers the following categories of parameters you can use to make data queries: 
 
@@ -155,7 +155,7 @@ In this section you can **select** specific message fields to filter your query,
 TimeBase messages may be of different types (classes). Each message class has a specific set of attributes (fields). In Grafana UI it is visualized as `class:field` in the **Fields** section. Imagine a water meter, meter id is a symbol, meter reading is a field. Another example of a field may be a trading instrument price and quantity (trading instrument name is a symbol, price and quantity are fields).  
 
 * Select at least one **Field** from the drop down list of available fields. Available fields are determined by message types (classes) in your stream. The selected data is displayed on the dashboard and is changed as you add more fields and perform any additional manipulations with data.<br> 
-![](/images/grafana_plugin_4.png)<br>
+![](/src/img/grafana_plugin_4.png)<br>
 * On the dashboard, you can select between fields you wish to display.
 
 
@@ -163,9 +163,9 @@ TimeBase messages may be of different types (classes). Each message class has a 
 
 You can perform various manipulations with your data set using mathematical, financial and/or statistical functions. Hover over each function to see details. You can use combinations of functions.
 
-![](/images/functions.png)
+![](/src/img/functions.png)
 
-![](/images/functions2.png)
+![](/src/img/functions2.png)
 
 > Available functions are determined by the TimeBase Web Admin back end.
  
@@ -175,7 +175,7 @@ Use a set of available aggregations and aliases to manipulate with the selected 
 
 > Aggregations cannot be applied to aggregation functions (e.g. bars functions).
  
-![](/images/aggregations.png)
+![](/src/img/aggregations.png)
 
 > Available aggregations are determined by the TimeBase Web Admin back end.
  
@@ -184,13 +184,13 @@ Use a set of available aggregations and aliases to manipulate with the selected 
 
 Use this section to set time intervals and to make additional groupings of the selected data. For example, in case you have selected **All()** symbols from your stream, you can use group by **symbol** to view data for each symbol in the stream. Use a predefined time range options or manually input time range (e.g. 45s) to sort data in time. 
 
-![](/images/groupings.png)
+![](/src/img/groupings.png)
 
 **Option**
 
 This option is enabled in case you select at least one specific field to Group By your data set. In this case, the selected field(s) serves as a key. You can arrange data with this key either placed in table column or row. 
 
-![](/images/group_option.png)
+![](/src/img/group_option.png)
 
 #### View {#view}
 
