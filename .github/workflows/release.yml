@@ -37,10 +37,10 @@ jobs:
           cache: 'yarn'
       - run: yarn install
       - run: yarn build
-      - run: yarn sign
-        env:
-          GRAFANA_API_KEY: ${{ secrets.GRAFANA_API_KEY }}
-          GRAFANA_ROOT_URLS: ${{ secrets.GRAFANA_ROOT_URLS }}
+#      - run: yarn sign
+#        env:
+#          GRAFANA_API_KEY: ${{ secrets.GRAFANA_API_KEY }}
+#          GRAFANA_ROOT_URLS: ${{ secrets.GRAFANA_ROOT_URLS }}
       - run: zip epam-timebase-datasource.zip dist/ -r
       - uses: ncipollo/release-action@v1
         with:
