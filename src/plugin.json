@@ -10,14 +10,23 @@
     "description": "TimeBase datasource",
     "author": {
       "name": "EPAM Systems, Inc.",
-      "url": "epam.com"
+      "url": "https://www.epam.com/"
     },
     "keywords": [],
     "logos": {
       "small": "img/logo.svg",
       "large": "img/logo.svg"
     },
-    "links": [],
+    "links": [
+      {
+        "name": "Website",
+        "url": "https://github.com/epam/TimeBaseGrafanaPlugin"
+      },
+      {
+        "name": "License",
+        "url": "https://github.com/epam/TimeBaseGrafanaPlugin/blob/main/LICENSE"
+      }
+    ],
     "screenshots": [],
     "version": "%VERSION%",
     "updated": "%TODAY%"
