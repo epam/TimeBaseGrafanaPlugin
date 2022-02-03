@@ -4,6 +4,8 @@ TimeBase Grafana plugin allows visualizing [TimeBase](https://kb.timebase.info/)
 
 [Link to plugin distribution](https://github.com/epam/TimeBaseGrafanaPlugin/releases/download/1.0.7/epam-timebase-datasource.zip)
 
+[Link to QQL (TimeBase Query language) tutorial](https://kb.timebase.info/community/development/qql-tut)
+
 ## Functionality
 
 This plugin provides a wide range of instruments for time-series data analysis and processing, including functions from financial analysis domain, statistics, etc.
@@ -70,7 +72,7 @@ Grafana plugin uses TimeBase as a data source. You can use more than one TimeBas
 
 ![](/src/img/dashboard1.png)
 
-**TimeBase Overview** - displays all the available streams (count, names, stream schemas, description), [QQL](https://kb.timebase.info/qql-tut.html#aggregates-and-qql-functions) stateful and stateless functions, stream classes ([messages](https://kb.timebase.info/messages.html)) and fields. 
+**TimeBase Overview** - displays all the available streams (count, names, stream schemas, description), [QQL](https://kb.timebase.info/community/development/qql-tut) stateful and stateless functions, stream classes ([messages](https://kb.timebase.info/messages.html)) and fields. 
 
 ![](/src/img/dashboard2.png)
 
@@ -104,7 +106,7 @@ In this mode you can use built-in UI elements to create and run QQL queries to t
 
 ![](/src/img/raw.png)
 
-In this mode you switch from the UI to the raw QQL query format. Refer to [QQL Tutorial](https://kb.timebase.info/qql-tut.html) to learn more about the TimeBase query language called QQL. 
+In this mode you switch from the UI to the raw QQL query format. Refer to [QQL Tutorial](https://kb.timebase.info/community/development/qql-tut) to learn more about the TimeBase query language called QQL. 
 
 #### Parameters
 
