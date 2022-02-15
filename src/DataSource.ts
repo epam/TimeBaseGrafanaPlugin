@@ -92,7 +92,8 @@ export class TimeBaseDataSource extends DataSourceApi<TimeBaseQuery, MyDataSourc
           typeof target.rawQuery === 'string' ? target.rawQuery : '',
           options.range,
           target.variableQuery,
-          target.requestType == null ? DATAFRAME_KEY : target.requestType
+          target.requestType == null ? DATAFRAME_KEY : target.requestType,
+          options.maxDataPoints
         )
       );
       return merge(...dataframes).pipe(
@@ -295,11 +296,12 @@ export class TimeBaseDataSource extends DataSourceApi<TimeBaseQuery, MyDataSourc
     );
   }
 
-  rawQuery(query: string, range: TimeRange, variableQuery: boolean): Observable<any[]> {
+  rawQuery(query: string, range: TimeRange, variableQuery: boolean, rows?: number): Observable<any[]> {
     return this.fetch('POST', '/query', {
       query: getReplacedValue(query, this.scopedVars),
       from: variableQuery ? null : range.from.utc().format(DATETIME_FORMAT),
       to: variableQuery ? null : range.to.utc().format(DATETIME_FORMAT),
+      rows: rows,
     }).pipe(map((response: FetchResponse<any[]>) => response.data));
   }
 
@@ -351,19 +353,25 @@ export class TimeBaseDataSource extends DataSourceApi<TimeBaseQuery, MyDataSourc
     query: string,
     range: TimeRange,
     variableQuery: boolean,
-    type: string
+    type: string,
+    maxDataPoints?: number
   ): Observable<TimeSeries | DataFrame> {
     if (type === DATAFRAME_KEY) {
-      return this.executeDataFrameQuery(query, range, variableQuery);
+      return this.executeDataFrameQuery(query, range, variableQuery, maxDataPoints);
     } else {
-      return this.executeTimeSeriesQuery(query, range, variableQuery);
+      return this.executeTimeSeriesQuery(query, range, variableQuery, maxDataPoints);
     }
   }
 
-  executeTimeSeriesQuery(query: string, range: TimeRange, variableQuery: boolean): Observable<TimeSeries> {
+  executeTimeSeriesQuery(
+    query: string,
+    range: TimeRange,
+    variableQuery: boolean,
+    maxDataPoints?: number
+  ): Observable<TimeSeries> {
     return forkJoin({
       schema: this.describeQuery(query),
-      data: this.rawQuery(query, range, variableQuery),
+      data: this.rawQuery(query, range, variableQuery, maxDataPoints),
     }).pipe(
       map((response: { schema: TypeDef[]; data: any[] }) => {
         const numeric = new Set<string>();
@@ -400,10 +408,15 @@ export class TimeBaseDataSource extends DataSourceApi<TimeBaseQuery, MyDataSourc
     );
   }
 
-  executeDataFrameQuery(query: string, range: TimeRange, variableQuery: boolean): Observable<DataFrame> {
+  executeDataFrameQuery(
+    query: string,
+    range: TimeRange,
+    variableQuery: boolean,
+    maxDataPoints?: number
+  ): Observable<DataFrame> {
     return forkJoin({
       schema: this.describeQuery(query),
-      data: this.rawQuery(query, range, variableQuery),
+      data: this.rawQuery(query, range, variableQuery, maxDataPoints),
     }).pipe(
       map((response: { schema: TypeDef[]; data: any[] }) => {
         const frame = new MutableDataFrame();
