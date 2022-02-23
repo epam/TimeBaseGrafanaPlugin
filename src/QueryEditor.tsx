@@ -1,5 +1,5 @@
 import { QueryEditorProps, SelectableValue } from '@grafana/data';
-import { CascaderOption, TextArea } from '@grafana/ui';
+import { CascaderOption, Input, TextArea } from '@grafana/ui';
 import { css, cx } from 'emotion';
 import React, { PureComponent } from 'react';
 
@@ -546,6 +546,10 @@ export class QueryEditor extends PureComponent<
     this.props.onChange({ ...this.props.query, rawQuery: event.target.value });
   };
 
+  onChangeMaxRecords = (event: React.ChangeEvent<HTMLInputElement>) => {
+    this.props.onChange({ ...this.props.query, maxRecords: +event.target.value });
+  };
+
   render() {
     const filters = this.props.query.filters == null ? [] : this.props.query.filters;
     const selects = this.props.query.selects == null ? [{ ...EMPTY_SELECT }] : this.props.query.selects;
@@ -789,6 +793,18 @@ export class QueryEditor extends PureComponent<
                 value={toOption(this.props.query.requestType || DATAFRAME_KEY)}
                 options={VIEWS.map(toOption)}
                 onChange={this.onChangeView}
+              />
+            </SegmentFrame>
+          </div>
+          <div className={cx('gf-form-inline w-100 ', commonStyles)}>
+            <SegmentFrame title="MAX RECORDS">
+              <Input
+                type="number"
+                className={cx('input', commonStyles)}
+                value={this.props.query.maxRecords}
+                defaultValue={10000}
+                onChange={this.onChangeMaxRecords}
+                width={10}
               />
             </SegmentFrame>
           </div>

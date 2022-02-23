@@ -93,7 +93,7 @@ export class TimeBaseDataSource extends DataSourceApi<TimeBaseQuery, MyDataSourc
           options.range,
           target.variableQuery,
           target.requestType == null ? DATAFRAME_KEY : target.requestType,
-          options.maxDataPoints
+          target.maxRecords
         )
       );
       return merge(...dataframes).pipe(
@@ -111,7 +111,8 @@ export class TimeBaseDataSource extends DataSourceApi<TimeBaseQuery, MyDataSourc
           typeof target.rawQuery === 'string' ? target.rawQuery : '',
           options.range,
           target.variableQuery,
-          target.requestType == null ? DATAFRAME_KEY : target.requestType
+          target.requestType == null ? DATAFRAME_KEY : target.requestType,
+          target.maxRecords
         )
       );
 
