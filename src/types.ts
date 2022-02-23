@@ -14,6 +14,7 @@ export interface TimeBaseQuery extends DataQuery {
   raw: boolean | null | undefined;
   rawQuery: string | string[] | number;
   variableQuery: boolean;
+  maxRecords: number;
 }
 
 export interface Select {
