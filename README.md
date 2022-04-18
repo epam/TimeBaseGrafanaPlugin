@@ -2,7 +2,7 @@
 
 TimeBase Grafana plugin allows visualizing [TimeBase](https://kb.timebase.info/) streams data in [Grafana](https://grafana.com/).
 
-[Link to plugin distribution](https://github.com/epam/TimeBaseGrafanaPlugin/releases/download/1.0.7/epam-timebase-datasource.zip)
+[Link to plugin distribution](https://github.com/epam/TimeBaseGrafanaPlugin/releases/download/1.0.10/epam-timebase-datasource.zip)
 
 [Link to QQL (TimeBase Query language) tutorial](https://kb.timebase.info/community/development/qql-tut)
 
@@ -29,12 +29,12 @@ Other versions are rather incompatible or partially incompatible.
 
 > Preferred with Docker/Kubernetes.
 
-1. Set environment variable `GF_INSTALL_PLUGINS=https://github.com/epam/TimeBaseGrafanaPlugin/releases/download/1.0.7/epam-timebase-datasource.zip;epam-timebase-datasource` and `GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS=epam-timebase-datasource`.
+1. Set environment variable `GF_INSTALL_PLUGINS=https://github.com/epam/TimeBaseGrafanaPlugin/releases/download/1.0.10/epam-timebase-datasource.zip;epam-timebase-datasource` and `GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS=epam-timebase-datasource`.
 2. Restart grafana server.
 
 ### Using `grafana-cli`
 
-1. Run command `grafana-cli --pluginUrl https://github.com/epam/TimeBaseGrafanaPlugin/releases/download/1.0.7/epam-timebase-datasource.zip plugins install epam-timebase-datasource`
+1. Run command `grafana-cli --pluginUrl https://github.com/epam/TimeBaseGrafanaPlugin/releases/download/1.0.10/epam-timebase-datasource.zip plugins install epam-timebase-datasource`
 2. Restart Grafana server.
 
 ## Working with SSO on TimeBase WebAdmin
