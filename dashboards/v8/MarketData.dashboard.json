@@ -66,7 +66,7 @@
         {
           "queryType": "randomWalk",
           "raw": true,
-          "rawQuery": "/* one-minute bars based on trades */\nWITH entries[this is $TradeType] as 'entries'\nSELECT\nfirst{}(entries[0].price) as 'open',\nlast{}(entries[-1].price) as 'close',\nmax{}(max(entries.price)) as 'high',\nmin{}(min(entries.price)) as 'low'\nFROM $stream\nOVER TIME($__interval)\nWHERE symbol == '$symbol'\nAND notEmpty(entries)\n",
+          "rawQuery": "/* one-minute bars based on trades */\nWITH entries[this is $TradeType] as 'entries'\nSELECT\nfirst{}(entries[0].price) as 'open',\nlast{}(entries[-1].price) as 'close',\nmax{}(max(entries.price)) as 'high',\nmin{}(min(entries.price)) as 'low'\nFROM \"$stream\"\nOVER TIME($__interval)\nWHERE symbol == '$symbol'\nAND notEmpty(entries)\n",
           "refId": "A",
           "requestType": "TIMESERIES"
         }
@@ -154,7 +154,7 @@
         {
           "queryType": "randomWalk",
           "raw": true,
-          "rawQuery": "/* one-minute bars based on trades */\nWITH entries[this is $TradeType] as 'entries',\nsum(entries.price * entries.size) / sum(entries.size) as 'avgPrice',\nbollinger{}(avgPrice) as 'bollinger'\nSELECT\navgPrice,\nsma{timePeriod: 1h}(avgPrice) as 'sma-1h',\ncma{}(avgPrice) as 'cma',\nema{period: 14}(avgPrice) as 'ema-14',\nbollinger.upperBand,\nbollinger.middleBand,\nbollinger.lowerBand\nFROM $stream\nOVER TIME($__interval)\nWHERE symbol == '$symbol'\nAND notEmpty(entries)\n",
+          "rawQuery": "/* one-minute bars based on trades */\nWITH entries[this is $TradeType] as 'entries',\nsum(entries.price * entries.size) / sum(entries.size) as 'avgPrice',\nbollinger{}(avgPrice) as 'bollinger'\nSELECT\navgPrice,\nsma{timePeriod: 1h}(avgPrice) as 'sma-1h',\ncma{}(avgPrice) as 'cma',\nema{period: 14}(avgPrice) as 'ema-14',\nbollinger.upperBand,\nbollinger.middleBand,\nbollinger.lowerBand\nFROM \"$stream\"\nOVER TIME($__interval)\nWHERE symbol == '$symbol'\nAND notEmpty(entries)\n",
           "refId": "A"
         }
       ],
@@ -239,7 +239,7 @@
         {
           "queryType": "randomWalk",
           "raw": true,
-          "rawQuery": "/* one-minute bars based on trades */\nWITH entries[this is $TradeType] as 'entries'\nSELECT\nsum{}(sum(entries.size)) as 'volume'\nFROM $stream\nOVER TIME($__interval)\nWHERE symbol == '$symbol'\nAND notEmpty(entries)\n",
+          "rawQuery": "/* one-minute bars based on trades */\nWITH entries[this is $TradeType] as 'entries'\nSELECT\nsum{}(sum(entries.size)) as 'volume'\nFROM \"$stream\"\nOVER TIME($__interval)\nWHERE symbol == '$symbol'\nAND notEmpty(entries)\n",
           "refId": "A",
           "requestType": "DATAFRAME"
         }
@@ -297,7 +297,7 @@
         {
           "queryType": "randomWalk",
           "raw": true,
-          "rawQuery": "/* one-minute bars based on trades */\nWITH entries[this is L2EntryNew] as 'entries',\nsum(entries.price * entries.size) / sum(entries.size) as 'avgPrice'\nSELECT\navgPrice\nFROM $stream\nOVER TIME($__interval)\nWHERE symbol == '$symbol'\nAND notEmpty(entries)\n",
+          "rawQuery": "/* one-minute bars based on trades */\nWITH entries[this is L2EntryNew] as 'entries',\nsum(entries.price * entries.size) / sum(entries.size) as 'avgPrice'\nSELECT\navgPrice\nFROM \"$stream\"\nOVER TIME($__interval)\nWHERE symbol == '$symbol'\nAND notEmpty(entries)\n",
           "refId": "A"
         }
       ],
@@ -354,7 +354,7 @@
         {
           "queryType": "randomWalk",
           "raw": true,
-          "rawQuery": "/* one-minute bars based on trades */\nwith (entries[this is L2EntryNew] as array(L2EntryNew))[this.side == BID] as 'entries',\nsum(entries.price * entries.size) / sum(entries.size) as 'bidPrice'\nSELECT\nbidPrice\nFROM $stream\nOVER TIME($__interval)\nWHERE symbol == '$symbol'\nAND notEmpty(entries)\n",
+          "rawQuery": "/* one-minute bars based on trades */\nwith (entries[this is L2EntryNew] as array(L2EntryNew))[this.side == BID] as 'entries',\nsum(entries.price * entries.size) / sum(entries.size) as 'bidPrice'\nSELECT\nbidPrice\nFROM \"$stream\"\nOVER TIME($__interval)\nWHERE symbol == '$symbol'\nAND notEmpty(entries)\n",
           "refId": "A"
         }
       ],
@@ -411,7 +411,7 @@
         {
           "queryType": "randomWalk",
           "raw": true,
-          "rawQuery": "/* one-minute bars based on trades */\nwith (entries[this is L2EntryNew] as array(L2EntryNew))[this.side == ASK] as 'entries',\nsum(entries.price * entries.size) / sum(entries.size) as 'askPrice'\nSELECT\naskPrice\nFROM $stream\nOVER TIME($__interval)\nWHERE symbol == '$symbol'\nAND notEmpty(entries)\n",
+          "rawQuery": "/* one-minute bars based on trades */\nwith (entries[this is L2EntryNew] as array(L2EntryNew))[this.side == ASK] as 'entries',\nsum(entries.price * entries.size) / sum(entries.size) as 'askPrice'\nSELECT\naskPrice\nFROM \"$stream\"\nOVER TIME($__interval)\nWHERE symbol == '$symbol'\nAND notEmpty(entries)\n",
           "refId": "A"
         }
       ],
