@@ -45,7 +45,6 @@ jobs:
       - run: md5sum epam-timebase-datasource.zip > epam-timebase-datasource.zip.md5
       - uses: ncipollo/release-action@v1
         with:
-          artifacts: "epam-timebase-datasource.zip"
-          artifacts: "epam-timebase-datasource.zip.md5"
+          artifacts: "epam-timebase-datasource.zip,epam-timebase-datasource.zip.md5"
           token: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ steps.semvers.outputs.patch }}
