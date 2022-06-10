@@ -2,7 +2,7 @@
 
 TimeBase Grafana plugin allows visualizing [TimeBase](https://kb.timebase.info/) streams data in [Grafana](https://grafana.com/).
 
-[Link to plugin distribution](https://github.com/epam/TimeBaseGrafanaPlugin/releases/download/1.0.10/epam-timebase-datasource.zip)
+[Link to plugin distribution](https://github.com/epam/TimeBaseGrafanaPlugin/releases/download/1.0.11/timebase-datasource.zip)
 
 [Link to QQL (TimeBase Query language) tutorial](https://kb.timebase.info/community/development/qql-tut)
 
