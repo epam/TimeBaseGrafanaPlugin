@@ -12,7 +12,8 @@ This plugin provides a wide range of instruments for time-series data analysis a
 
 ## Prerequisites
 
-TimeBase plugin uses [TimeBase Web Admin](https://kb.timebase.info/admin.html) REST API - the required component.
+TimeBase plugin uses [TimeBase Web Admin](https://webadmin.timebase.info/api/v0/docs/index.html) REST API - the required component.
+
 
 ---
 **IMPORTANT NOTICE**
@@ -72,7 +73,7 @@ Grafana plugin uses TimeBase as a data source. You can use more than one TimeBas
 
 ![](/src/img/dashboard1.png)
 
-**TimeBase Overview** - displays all the available streams (count, names, stream schemas, description), [QQL](https://kb.timebase.info/community/development/qql-tut) stateful and stateless functions, stream classes ([messages](https://kb.timebase.info/messages.html)) and fields. 
+**TimeBase Overview** - displays all the available streams (count, names, stream schemas, description), [QQL](https://kb.timebase.info/community/development/qql-tut) stateful and stateless functions, stream classes ([messages](https://kb.timebase.info/community/overview/messages)) and fields. 
 
 ![](/src/img/dashboard2.png)
 
@@ -194,5 +195,5 @@ Grafana supports **DATAFRAME** and **TIMESERIES** visualization formats. Select 
 * [Grafana Getting Started Documentation](https://grafana.com/docs/grafana/latest/)
 * [Grafana Plugin Installation Guide](https://grafana.com/docs/grafana/latest/plugins/installation/#installing-plugins-manually)
 * [Grafana Plugin CLI Commands](https://grafana.com/docs/grafana/latest/administration/cli/#plugins-commands)
-* [TimeBase Web Admin Installation](https://kb.timebase.info/admin.html#deployment)
-* [TimeBase Deployment Options](https://kb.timebase.info/docker.html)
+* [TimeBase Web Admin Installation](https://kb.timebase.info/community/development/tools/Web%20Admin/admin_config_ce)
+* [TimeBase Deployment Options](https://kb.timebase.info/community/deployment/docker)
