@@ -123,7 +123,7 @@ TimeBase plugin offers the following categories of parameters you can use to mak
 
 #### Stream
 
-Time-series data is stored in [streams](https://kb.timebase.info/streams.html). Each TimeBase instance can be seen as a collection of streams. Here you can select a specific stream to visualize data that it stores. 
+Time-series data is stored in [streams](https://kb.timebase.info/community/overview/streams). Each TimeBase instance can be seen as a collection of streams. Here you can select a specific stream to visualize data that it stores. 
 
 * Select a stream you wish to place a query to. 
 * Use **WHERE**/**AND** clauses to extract data that meets specific conditions. 
