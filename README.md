@@ -133,7 +133,7 @@ Time-series data is stored in [streams](https://kb.timebase.info/streams.html). 
 
 #### Symbol
 
-Time-series data is recorded in streams in a form of [Messages](https://kb.timebase.info/messages.html). Each message has a `timestamp` (time and date of a message) and `symbol` (specific identifier of a data source like sensor id, trading instrument name etc) that serve for data indexing. You can select a specific symbol to sort stream data by, for example display all readings for a specific IoT sensor (sensor id is a symbol value in this case).
+Time-series data is recorded in streams in a form of [Messages](https://kb.timebase.info/community/overview/messages). Each message has a `timestamp` (time and date of a message) and `symbol` (specific identifier of a data source like sensor id, trading instrument name etc) that serve for data indexing. You can select a specific symbol to sort stream data by, for example display all readings for a specific IoT sensor (sensor id is a symbol value in this case).
 
 * Use drop down list of symbols to select a specific symbol for your query or select **All()** to display data for all the available symbols.
 
