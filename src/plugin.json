@@ -1,70 +1,82 @@
 {
-  "$schema": "https://raw.githubusercontent.com/grafana/grafana/master/docs/sources/developers/plugins/plugin.schema.json",
-  "type": "datasource",
-  "name": "TimeBase",
-  "id": "epam-timebase-datasource",
-  "metrics": true,
-  "annotations": true,
-  "streaming": false,
-  "info": {
-    "description": "TimeBase datasource",
-    "author": {
-      "name": "EPAM Systems, Inc.",
-      "url": "https://www.epam.com/"
-    },
-    "keywords": [],
-    "logos": {
-      "small": "img/logo.svg",
-      "large": "img/logo.svg"
-    },
-    "links": [
-      {
-        "name": "Website",
-        "url": "https://github.com/epam/TimeBaseGrafanaPlugin"
-      },
-      {
-        "name": "License",
-        "url": "https://github.com/epam/TimeBaseGrafanaPlugin/blob/main/LICENSE"
-      }
-    ],
-    "screenshots": [],
-    "version": "%VERSION%",
-    "updated": "%TODAY%"
-  },
-  "routes": [
-    {
-      "path": "",
-      "method": "GET",
-      "tokenAuth": {
-        "url": "{{.JsonData.timebaseUrl}}/oauth/token",
-        "params": {
-          "grant_type": "password",
-          "client_id": "web",
-          "client_secret": "secret",
-          "username": "{{.JsonData.timebaseUser}}",
-          "password": "{{.SecureJsonData.timebasePassword}}",
-          "scope": "trust"
-        }
-      }
-    },
-    {
-      "path": "",
-      "method": "POST",
-      "tokenAuth": {
-        "url": "{{.JsonData.timebaseUrl}}/oauth/token",
-        "params": {
-          "grant_type": "password",
-          "client_id": "web",
-          "client_secret": "secret",
-          "username": "{{.JsonData.timebaseUser}}",
-          "password": "{{.SecureJsonData.timebasePassword}}",
-          "scope": "trust"
-        }
-      }
-    }
-  ],
-  "dependencies": {
-    "grafanaDependency": ">=7.5.8",
-    "plugins": []
-  }
+	"$schema": "https://raw.githubusercontent.com/grafana/grafana/master/docs/sources/developers/plugins/plugin.schema.json",
+	"type": "datasource",
+	"name": "TimeBase",
+	"id": "epam-timebase-datasource",
+	"metrics": true,
+	"annotations": true,
+	"streaming": false,
+	"info": {
+		"description": "TimeBase Datasource for Grafana",
+		"author": {
+			"name": "EPAM Systems, Inc.",
+			"url": "https://www.epam.com/"
+		},
+		"keywords": [
+			"TimeBase",
+			"EPAM"
+		],
+		"logos": {
+			"small": "src/img/logo.svg",
+			"large": "src/img/logo.svg"
+		},
+		"links": [
+			{
+				"name": "Website",
+				"url": "https://github.com/epam/TimeBaseGrafanaPlugin"
+			},
+			{
+				"name": "License",
+				"url": "https://github.com/epam/TimeBaseGrafanaPlugin/blob/main/LICENSE"
+			}
+		],
+		"screenshots": [
+			{
+				"name": "dashboard",
+				"path": "src/img/dashboard2.png"
+			},
+			{
+				"name": "setup",
+				"path": "src/img/grafana_plugin_settings.png"
+			}
+		],
+		"version": "%VERSION%",
+		"updated": "%TODAY%"
+	},
+	"routes": [
+		{
+			"path": "",
+			"method": "GET",
+			"tokenAuth": {
+				"url": "{{.JsonData.timebaseUrl}}/oauth/token",
+				"params": {
+					"grant_type": "password",
+					"client_id": "web",
+					"client_secret": "secret",
+					"username": "{{.JsonData.timebaseUser}}",
+					"password": "{{.SecureJsonData.timebasePassword}}",
+					"scope": "trust"
+				}
+			}
+		},
+		{
+			"path": "",
+			"method": "POST",
+			"tokenAuth": {
+				"url": "{{.JsonData.timebaseUrl}}/oauth/token",
+				"params": {
+					"grant_type": "password",
+					"client_id": "web",
+					"client_secret": "secret",
+					"username": "{{.JsonData.timebaseUser}}",
+					"password": "{{.SecureJsonData.timebasePassword}}",
+					"scope": "trust"
+				}
+			}
+		}
+	],
+	"dependencies": {
+		"grafanaDependency": ">=7.5.8",
+		"plugins": []
+	}
 }
