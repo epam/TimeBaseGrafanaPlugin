@@ -1,6 +1,6 @@
 {
     "name": "epam-timebase-datasource",
-    "version": "1.0.11",
+    "version": "1.0.12",
     "scripts": {
         "build": "grafana-toolkit plugin:build",
         "test": "grafana-toolkit plugin:test",
