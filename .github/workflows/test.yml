@@ -20,7 +20,14 @@ jobs:
           cache: 'yarn'
       - run: yarn install
       - run: yarn build
-      - name: Check URLs
-        uses: paramt/url-checker@master
+      - name: Link Checker
+        uses: lycheeverse/lychee-action@v1.5.0
         with:
-          files: "README.md"      
+          # Check all markdown and html files in repo (default) './**/*.html'
+          args: --verbose --exclude-all-private --no-progress './**/*.md'
+          # Use json as output format (instead of markdown)
+          # format: json
+          # Use different output file path
+          # output: /tmp/foo.txt
+          # Fail action on broken links
+          fail: true
