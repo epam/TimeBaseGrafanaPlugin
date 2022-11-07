@@ -4,7 +4,7 @@ TimeBase Grafana plugin allows visualizing [TimeBase](https://kb.timebase.info/)
 
 [Link to plugin distribution](https://github.com/epam/TimeBaseGrafanaPlugin/releases/download/1.0.12/epam-timebase-datasource.zip)
 
-[Link to QQL (TimeBase Query language) tutorial](https://kb.timebase.info/community/development/qql-tut)
+[Link to QQL (TimeBase Query language) tutorial](https://kb.timebase.info/community/development/qql/QQL%205.5/qql-tut-intro)
 
 ## Functionality
 
