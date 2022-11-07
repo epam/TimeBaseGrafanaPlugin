@@ -107,7 +107,7 @@ In this mode you can use built-in UI elements to create and run QQL queries to t
 
 ![](/src/img/raw.png)
 
-In this mode you switch from the UI to the raw QQL query format. Refer to [QQL Tutorial](https://kb.timebase.info/community/development/qql-tut) to learn more about the TimeBase query language called QQL. 
+In this mode you switch from the UI to the raw QQL query format. Refer to [QQL Tutorial](https://kb.timebase.info/community/development/qql/QQL%205.5/qql-tut-intro) to learn more about the TimeBase query language called QQL. 
 
 #### Parameters
 
