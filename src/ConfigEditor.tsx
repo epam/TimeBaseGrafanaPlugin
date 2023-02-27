@@ -1,6 +1,6 @@
 import { DataSourcePluginOptionsEditorProps } from '@grafana/data';
 import { DataSourceHttpSettings, InlineSwitch, LegacyForms } from '@grafana/ui';
-import React, {ChangeEvent, Fragment, PureComponent} from 'react';
+import React, { ChangeEvent, Fragment, PureComponent } from 'react';
 
 import { MyDataSourceOptions } from './types';
 import { DataSourceSettings } from '@grafana/data/types/datasource';
@@ -88,13 +88,13 @@ export class ConfigEditor extends PureComponent<DataSourcePluginOptionsEditorPro
   };
 
   onApiKeyEnableChange = (event: any) => {
-    const {onOptionsChange, options} = this.props;
+    const { onOptionsChange, options } = this.props;
     const jsonData = {
       ...options.jsonData,
       apiKeyEnable: event.target.checked,
     };
-    onOptionsChange({...options, jsonData});
-  }
+    onOptionsChange({ ...options, jsonData });
+  };
 
   render() {
     const { options } = this.props;
@@ -137,9 +137,10 @@ export class ConfigEditor extends PureComponent<DataSourcePluginOptionsEditorPro
                 <InlineSwitch
                   disabled={false}
                   value={options.jsonData.apiKeyEnable}
-                  onChange={this.onApiKeyEnableChange}/>
+                  onChange={this.onApiKeyEnableChange}
+                />
               </div>
-              {options.jsonData.apiKeyEnable &&
+              {options.jsonData.apiKeyEnable && (
                 <Fragment>
                   <div className="gf-form">
                     <FormField
@@ -162,7 +163,7 @@ export class ConfigEditor extends PureComponent<DataSourcePluginOptionsEditorPro
                     />
                   </div>
                 </Fragment>
-              }
+              )}
             </div>
           </div>
         </div>
