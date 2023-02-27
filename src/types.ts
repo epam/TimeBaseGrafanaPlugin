@@ -33,6 +33,8 @@ export interface Filter {
 export interface MyDataSourceOptions extends DataSourceJsonData {
   timebaseUrl?: string;
   timebaseUser?: string;
+  timebaseApiKey?: string;
+  apiKeyEnable?: boolean;
 }
 
 export interface TimeBaseVariableQuery {
