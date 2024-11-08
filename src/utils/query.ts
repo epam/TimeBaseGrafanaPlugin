@@ -1,5 +1,5 @@
 import { Filter, Select } from '../types';
-import { getValue } from '../view/TimeGrouping/TimeGrouping';
+import { getValue } from '../components/view/TimeGrouping/TimeGrouping';
 import { Operator } from './constants';
 import { FunctionParameter, FunctionValue } from './types';
 import { getServerFilterType, separateTypeAndField } from './utils';

@@ -16,10 +16,8 @@ import {
   TimeSeries,
   VariableModel,
 } from '@grafana/data';
-import { BackendSrvRequest, FetchResponse, getBackendSrv, SystemJS } from '@grafana/runtime';
+import { BackendSrvRequest, FetchResponse, getBackendSrv } from '@grafana/runtime';
 import deepEqual from 'fast-deep-equal';
-import { forkJoin, from, merge, Observable, Subject } from '@grafana/data/node_modules/rxjs';
-import { map, mergeMap, toArray } from '@grafana/data/node_modules/rxjs/operators';
 
 import { MyDataSourceOptions, TimeBaseQuery } from './types';
 import { COLUMN_KEY, DATAFRAME_KEY } from './utils/constants';
@@ -29,6 +27,7 @@ import { Schema, TypeDef, Version } from './utils/types';
 import { extractType, separateTypeAndField } from './utils/utils';
 import { getReplacedValue, getVariables } from './utils/variables';
 import semver from 'semver';
+import { Observable, Subject, merge, toArray, map, mergeMap, forkJoin, from } from 'rxjs';
 
 const HEADERS = { 'Content-Type': 'application/json' };
 const GRAFANA_API_PREFIX = '/grafana/v0';
@@ -59,9 +58,9 @@ export class TimeBaseDataSource extends DataSourceApi<TimeBaseQuery, MyDataSourc
       (HEADERS as any)['Authorization'] = instanceSettings.basicAuth;
     }
 
-    SystemJS.load('app/core/app_events').then((appEvents: any) => {
-      this.appEvents = appEvents;
-    });
+    // SystemJS .load('app/core/app_events').then((appEvents: any) => {
+    //   this.appEvents = appEvents;
+    // });
   }
 
   query(options: DataQueryRequest<TimeBaseQuery>): Observable<DataQueryResponse> {
@@ -232,7 +231,8 @@ export class TimeBaseDataSource extends DataSourceApi<TimeBaseQuery, MyDataSourc
   }
 
   async metricFindQuery(query: string, options?: any): Promise<MetricFindValue[]> {
-    const response = await this.executeVariableQuery(getReplacedValue(query, this.scopedVars));
+    const response = await this.executeVariableQuery(getReplacedValue(query, this.scopedVars)) as 
+      { error?: HttpError; dataframe?: DataFrame };
     if (response.error != null) {
       this.createAlert(response.error.data?.message || response.error.message);
       return [];
@@ -314,7 +314,7 @@ export class TimeBaseDataSource extends DataSourceApi<TimeBaseQuery, MyDataSourc
     }).pipe(map((response: FetchResponse<any[]>) => response.data));
   }
 
-  executeVariableQuery(query: string): Promise<{ error?: HttpError; dataframe?: DataFrame }> {
+  executeVariableQuery(query: string): Promise<{ error?: HttpError; dataframe?: DataFrame } | undefined> {
     return forkJoin({
       schema: this.describeQuery(query),
       data: this.variableQuery(query),

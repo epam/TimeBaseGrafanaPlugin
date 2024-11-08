@@ -32,3 +32,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Query variables stabilized
 - Plugin uses standard timebase web-admin API
+
+## [1.0.12] - 2024-11-08
+
+### Added
+- Support for Grafana 11

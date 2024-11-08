@@ -1,0 +1,24 @@
+services:
+  grafana:
+    user: root
+    container_name: 'epam-timebase-datasource'
+
+    build:
+      context: ./.config
+      args:
+        grafana_image: ${GRAFANA_IMAGE:-grafana-enterprise}
+        grafana_version: ${GRAFANA_VERSION:-11.3.0}
+        development: ${DEVELOPMENT:-false}
+    ports:
+      - 3000:3000/tcp
+    volumes:
+      - ./dist:/var/lib/grafana/plugins/epam-timebase-datasource
+      - ./provisioning:/etc/grafana/provisioning
+      - .:/root/epam-timebase-datasource
+
+    environment:
+      NODE_ENV: development
+      GF_LOG_FILTERS: plugin.epam-timebase-datasource:debug
+      GF_LOG_LEVEL: debug
+      GF_DATAPROXY_LOGGING: 1
+      GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS: epam-timebase-datasource

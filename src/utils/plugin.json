@@ -1,0 +1,83 @@
+{
+    "$schema": "https://raw.githubusercontent.com/grafana/grafana/main/docs/sources/developers/plugins/plugin.schema.json",
+    "type": "datasource",
+    "name": "TimeBase",
+    "id": "epam-timebase-datasource",
+    "metrics": true,
+    "annotations": true,
+    "streaming": false,
+    "info": {
+        "description": "TimeBase Datasource for Grafana",
+        "author": {
+            "name": "EPAM Systems, Inc.",
+            "url": "https://www.epam.com/"
+        },
+        "keywords": [
+            "TimeBase",
+            "EPAM"
+        ],
+        "logos": {
+            "small": "img/logo.svg",
+            "large": "img/logo.svg"
+        },
+        "links": [
+            {
+                "name": "Website",
+                "url": "https://github.com/epam/TimeBaseGrafanaPlugin"
+            },
+            {
+                "name": "License",
+                "url": "https://github.com/epam/TimeBaseGrafanaPlugin/blob/main/LICENSE"
+            }
+        ],
+        "screenshots": [
+            {
+                "name": "dashboard",
+                "path": "src/img/dashboard2.png"
+            },
+            {
+                "name": "setup",
+                "path": "src/img/grafana_plugin_settings.png"
+            }
+        ],
+        "version": "1.0.12",
+        "updated": "2024-11-07"
+    },
+    "routes": [
+        {
+            "path": "",
+            "method": "GET",
+            "tokenAuth": {
+                "url": "{{.JsonData.timebaseUrl}}/oauth/token",
+                "params": {
+                    "grant_type": "password",
+                    "client_id": "web",
+                    "client_secret": "secret",
+                    "username": "{{.JsonData.timebaseUser}}",
+                    "password": "{{.SecureJsonData.timebasePassword}}",
+                    "scope": "trust"
+                }
+            }
+        },
+        {
+            "path": "",
+            "method": "POST",
+            "tokenAuth": {
+                "url": "{{.JsonData.timebaseUrl}}/oauth/token",
+                "params": {
+                    "grant_type": "password",
+                    "client_id": "web",
+                    "client_secret": "secret",
+                    "username": "{{.JsonData.timebaseUser}}",
+                    "password": "{{.SecureJsonData.timebasePassword}}",
+                    "scope": "trust"
+                }
+            }
+        }
+    ],
+    "dependencies": {
+        "grafanaDependency": ">=10.4.0",
+        "plugins": []
+    },
+    "buildMode": "production"
+}
