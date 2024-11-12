@@ -17,8 +17,8 @@
 			"EPAM"
 		],
 		"logos": {
-			"small": "src/img/logo.svg",
-			"large": "src/img/logo.svg"
+			"small": "img/logo.svg",
+			"large": "img/logo.svg"
 		},
 		"links": [
 			{
