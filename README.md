@@ -73,7 +73,7 @@ Grafana plugin uses TimeBase as a data source. You can use more than one TimeBas
 
 ![](/src/img/dashboard1.png)
 
-**TimeBase Overview** - displays all the available streams (count, names, stream schemas, description), [QQL](https://kb.timebase.info/community/development/qql-tut) stateful and stateless functions, stream classes [messages](https://kb.timebase.info/community/overview/messages) and fields. 
+**TimeBase Overview** - displays all the available streams (count, names, stream schemas, description), [QQL](https://kb.timebase.info/community/development/qql/QQL%205.5/qql-tut-intro) stateful and stateless functions, stream classes [messages](https://kb.timebase.info/community/overview/messages) and fields. 
 
 ![](/src/img/dashboard2.png)
 

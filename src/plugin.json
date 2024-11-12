@@ -6,6 +6,9 @@
 	"metrics": true,
 	"annotations": true,
 	"streaming": false,
+  "backend": true,
+  "alerting": true,
+  "executable": "epam-timebase-datasource-backend",
 	"info": {
 		"description": "TimeBase Datasource for Grafana",
 		"author": {
