@@ -77,7 +77,7 @@ export class ConfigEditor extends PureComponent<DataSourcePluginOptionsEditorPro
         />
         <div className="gf-form">
           <div className="gf-form-group">
-            <h3 className="page-heading">TimeBase Web Admin credentials 66</h3>
+            <h3 className="page-heading">TimeBase Web Admin credentials</h3>
             <div className="gf-form-group">
               <div className="gf-form">
                 <FormField
