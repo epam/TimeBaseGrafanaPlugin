@@ -22,6 +22,8 @@ Plugin works with TimeBase Web Admin versions __>=0.5.5__, TimeBase server versi
 
 Other versions are rather incompatible or partially incompatible.
 
+To build the plugin NodeJS >= 20 and Yarn >= 1.22 are used.
+
 ---
 
 ## Installation
