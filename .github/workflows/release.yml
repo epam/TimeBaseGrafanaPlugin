@@ -33,7 +33,7 @@ jobs:
           tag: ${{ steps.semvers.outputs.patch }}'
       - uses: actions/setup-node@v2
         with:
-          node-version: '14'
+          node-version: '20'
           cache: 'yarn'
       - run: yarn install
       - run: yarn build
