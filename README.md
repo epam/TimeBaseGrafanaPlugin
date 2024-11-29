@@ -19,8 +19,8 @@ TimeBase plugin uses [TimeBase Web Admin](https://webadmin.timebase.info/api/v0/
 **IMPORTANT NOTICE**
 
 
-Supported TimeBase versions: `[5.5.6, 5.7.*]`
-Supported TimeBase Web Admin versions: `[0.5.5, 1.2.*]`
+Supported TimeBase versions: `[5.5.6, 5.7.*]`    
+Supported TimeBase Web Admin versions: `[0.5.5, 1.2.*]`     
 Supported Grafana versions: `[10.2+, 11+]`
 
 Other versions are rather incompatible or partially incompatible.
