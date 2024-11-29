@@ -1,5 +1,5 @@
 import { SelectableValue } from '@grafana/data';
-import { Button, Input, MultiSelect, Segment, Select } from '@grafana/ui';
+import { Input, MultiSelect, Segment, Select } from '@grafana/ui';
 import { css, cx } from '@emotion/css';
 import React, { PureComponent } from 'react';
 
@@ -242,22 +242,6 @@ class Filter extends PureComponent<FilterProps, FilterState> {
     return this.state.filterValues;
   };
 
-  private getContentForItems = (otherProps: any) => {
-    return otherProps.value?.value === VALUE_KEY ? (
-      <Input
-        {...otherProps}
-        value={this.state.filterValues[0] == null ? '' : this.state.filterValues[0]}
-        className={cx('w-100', commonStyles)}
-        onKeyDown={this.onKeyPress}
-        onChange={this.onChangeInputValue}
-      />
-    ) : (
-      <Button {...otherProps} variant="secondary" className={cx('flex-justify w-100', styles, commonStyles)}>
-        {otherProps.value?.value}
-      </Button>
-    );
-  };
-
   render() {
     const [type, field] = separateTypeAndField(this.props.selectedField);
     return (
@@ -279,13 +263,12 @@ class Filter extends PureComponent<FilterProps, FilterState> {
         {showSpecialValues(this.props.selectedOperators as Operator) ? (
           <Select
             width={15}
-            className={cx('mr-4', styles)}
+            className={cx('select mr-4' , styles)}
             options={this.state.values}
             value={this.state.selectedItem}
             onChange={this.onChangeValue}
             backspaceRemovesValue={true}
-            isClearable={true}
-            renderControl={this.getContentForItems}
+            classNamePrefix="grafana-custom"
           />
         ) : (
           this.getContent()
