@@ -18,9 +18,10 @@ TimeBase plugin uses [TimeBase Web Admin](https://webadmin.timebase.info/api/v0/
 ---
 **IMPORTANT NOTICE**
 
-Supported TimeBase versions: `[5.5.6, 5.7.*, 6.*]`      
-Supported TimeBase Web Admin versions: `[0.5.5, 1.2.*]`      
-Supported Grafana versions: `[10.2.0+, 11+]`      
+
+Supported TimeBase versions: `[5.5.6, 5.7.*]`
+Supported TimeBase Web Admin versions: `[0.5.5, 1.2.*]`
+Supported Grafana versions: `[10.2+, 11+]`
 
 Other versions are rather incompatible or partially incompatible.
 
@@ -36,12 +37,12 @@ To build the plugin `NodeJS` >= 20 and `Yarn` >= 1.22 are required.
 
 > Preferred with Docker/Kubernetes.
 
-1. Set environment variable `GF_INSTALL_PLUGINS=https://github.com/epam/TimeBaseGrafanaPlugin/releases/download/1.0.11/epam-timebase-datasource.zip;epam-timebase-datasource` and `GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS=epam-timebase-datasource`.
+1. Set environment variable `GF_INSTALL_PLUGINS=https://github.com/epam/TimeBaseGrafanaPlugin/releases/download/1.0.13/epam-timebase-datasource.zip;epam-timebase-datasource` and `GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS=epam-timebase-datasource`.
 2. Restart grafana server.
 
 ### Using `grafana-cli`
 
-1. Run command `grafana-cli --pluginUrl https://github.com/epam/TimeBaseGrafanaPlugin/releases/download/1.0.11/epam-timebase-datasource.zip plugins install epam-timebase-datasource`
+1. Run command `grafana-cli --pluginUrl https://github.com/epam/TimeBaseGrafanaPlugin/releases/download/1.0.13/epam-timebase-datasource.zip plugins install epam-timebase-datasource`
 2. Restart Grafana server.
 
 ## Working with SSO on TimeBase WebAdmin
