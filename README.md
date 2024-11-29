@@ -2,7 +2,7 @@
 
 TimeBase Grafana plugin allows visualizing [TimeBase](https://kb.timebase.info/) streams data in [Grafana](https://grafana.com/).
 
-[Link to plugin distribution](https://github.com/epam/TimeBaseGrafanaPlugin/releases/download/1.0.13/epam-timebase-datasource.zip)
+[Link to plugin distribution](https://github.com/epam/TimeBaseGrafanaPlugin/releases/download/1.1.1/epam-timebase-datasource.zip)
 
 [Link to QQL (TimeBase Query language) tutorial](https://kb.timebase.info/community/development/qql/QQL%205.5/qql-tut-intro)
 
@@ -17,6 +17,7 @@ TimeBase plugin uses [TimeBase Web Admin](https://webadmin.timebase.info/api/v0/
 
 ---
 **IMPORTANT NOTICE**
+
 
 Supported TimeBase versions: `[5.5.6, 5.7.*]`
 Supported TimeBase Web Admin versions: `[0.5.5, 1.2.*]`
