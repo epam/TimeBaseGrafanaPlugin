@@ -1,6 +1,6 @@
 import { DataSourcePluginOptionsEditorProps } from '@grafana/data';
-import { DataSourceHttpSettings, LegacyForms } from '@grafana/ui';
-import React, { ChangeEvent, PureComponent } from 'react';
+import { DataSourceHttpSettings, InlineSwitch, LegacyForms } from '@grafana/ui';
+import React, { ChangeEvent, Fragment, PureComponent } from 'react';
 
 import { MyDataSourceOptions } from './types';
 import { DataSourceSettings } from '@grafana/data/types/datasource';
@@ -45,12 +45,32 @@ export class ConfigEditor extends PureComponent<DataSourcePluginOptionsEditorPro
     });
   };
 
+  onTimebaseApiKeyChange = (event: ChangeEvent<HTMLInputElement>) => {
+    this.props.onOptionsChange({
+      ...this.props.options,
+      jsonData: {
+        ...this.props.options.jsonData,
+        timebaseApiKey: event.target.value,
+      },
+    });
+  };
+
   onTimebasePasswordChange = (event: ChangeEvent<HTMLInputElement>) => {
     this.props.onOptionsChange({
       ...this.props.options,
       secureJsonData: {
         ...this.props.options.secureJsonData,
         timebasePassword: event.target.value,
+      },
+    });
+  };
+
+  onTimebaseApiSecretChange = (event: ChangeEvent<HTMLInputElement>) => {
+    this.props.onOptionsChange({
+      ...this.props.options,
+      secureJsonData: {
+        ...this.props.options.secureJsonData,
+        timebaseApiSecret: event.target.value,
       },
     });
   };
@@ -65,6 +85,15 @@ export class ConfigEditor extends PureComponent<DataSourcePluginOptionsEditorPro
         timebaseUrl: options.url,
       },
     });
+  };
+
+  onApiKeyEnableChange = (event: any) => {
+    const { onOptionsChange, options } = this.props;
+    const jsonData = {
+      ...options.jsonData,
+      apiKeyEnable: event.target.checked,
+    };
+    onOptionsChange({ ...options, jsonData });
   };
 
   render() {
@@ -101,6 +130,40 @@ export class ConfigEditor extends PureComponent<DataSourcePluginOptionsEditorPro
                   placeholder="password"
                 />
               </div>
+            </div>
+            <h3 className="page-heading">Enable API KEYS for alerts</h3>
+            <div className="gf-form-group">
+              <div className="gf-form">
+                <InlineSwitch
+                  disabled={false}
+                  value={options.jsonData.apiKeyEnable}
+                  onChange={this.onApiKeyEnableChange}
+                />
+              </div>
+              {options.jsonData.apiKeyEnable && (
+                <Fragment>
+                  <div className="gf-form">
+                    <FormField
+                      label="API-KEY"
+                      width={64}
+                      value={this.props.options.jsonData.timebaseApiKey}
+                      onChange={this.onTimebaseApiKeyChange}
+                      type="string"
+                      placeholder="timebase api key"
+                    />
+                  </div>
+                  <div className="gf-form">
+                    <SecretFormField
+                      label="API-SECRET"
+                      width={64}
+                      onChange={this.onTimebaseApiSecretChange}
+                      onReset={this.onReset}
+                      isConfigured={false}
+                      placeholder="timebase api secret"
+                    />
+                  </div>
+                </Fragment>
+              )}
             </div>
           </div>
         </div>
