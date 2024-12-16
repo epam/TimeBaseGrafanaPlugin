@@ -13,6 +13,7 @@ import {
   getFilterFields,
   getSelectedFieldType,
   isBooleanType,
+  isEnumType,
   isFloatType,
   isInFilters,
   isIntType,
@@ -261,6 +262,7 @@ class Filter extends PureComponent<FilterProps, FilterState> {
           onChange={this.onChangeOperator}
         />
         {showSpecialValues(this.props.selectedOperators as Operator) ? (
+          (isEnumType(this.state.fieldType as PropertyType) || isBooleanType(this.state.fieldType as PropertyType)) ?
           <Select
             width={15}
             className={cx('select mr-4' , styles)}
@@ -269,6 +271,12 @@ class Filter extends PureComponent<FilterProps, FilterState> {
             onChange={this.onChangeValue}
             backspaceRemovesValue={true}
             classNamePrefix="grafana-custom"
+          /> :
+          <Input
+            width={15}
+            value={this.state.filterValues[0] ?? ''}
+            onKeyDown={this.onKeyPress}
+            onChange={this.onChangeInputValue}
           />
         ) : (
           this.getContent()
