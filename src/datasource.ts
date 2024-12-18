@@ -27,7 +27,7 @@ import { Schema, TypeDef, Version } from './utils/types';
 import { extractType, separateTypeAndField } from './utils/utils';
 import { getReplacedValue, getVariables } from './utils/variables';
 import semver from 'semver';
-import { Observable, Subject, merge, toArray, map, mergeMap, forkJoin, from } from 'rxjs';
+import { Observable, Subject, merge, toArray, map, mergeMap, forkJoin, from, shareReplay } from 'rxjs';
 
 const HEADERS = { 'Content-Type': 'application/json' };
 const GRAFANA_API_PREFIX = '/grafana/v0';
@@ -158,7 +158,7 @@ export class TimeBaseDataSource extends DataSourceApi<TimeBaseQuery, MyDataSourc
       });
     this.intervals = getIntervals(options.maxDataPoints as any, options.range);
 
-    const request$: Observable<FetchResponse> = this.fetchGrafanaBackend('POST', '/queries/select', options);
+    const request$: Observable<FetchResponse> = this.fetchGrafanaBackend('POST', '/queries/select', options).pipe(shareReplay(1));
 
     request$.subscribe((event) => {
       if (event.status !== 200) {
@@ -177,7 +177,7 @@ export class TimeBaseDataSource extends DataSourceApi<TimeBaseQuery, MyDataSourc
     return merge(...rawTargets, otherTargets).pipe(
       toArray(),
       map((data: DataQueryResponseData[]) => {
-        return { data: data };
+        return { data };
       })
     );
   }
