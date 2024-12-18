@@ -2,7 +2,7 @@ import { SelectableValue } from '@grafana/data';
 
 import { Operator, SpecialValue } from './constants';
 import { DataType, PropertyType } from './types';
-import { isBooleanType, isEnumType, isFloatType, isNumberType, toOption } from './utils';
+import { isBooleanType, isEnumType, isFloatType, isNumberType, isDateTimeType, toOption } from './utils';
 
 const STRING_OPERATORS = [
   Operator.EQUALS,
@@ -26,6 +26,15 @@ const NUMBER_OPERATORS = [
   Operator.NOT_IN,
 ];
 
+const DATETIME_OPERATORS = [
+  Operator.EQUALS,
+  Operator.NOT_EQUAL,
+  Operator.GREATER_THAN,
+  Operator.GREATER_THAN_OR_EQUALS,
+  Operator.LESS_THAN,
+  Operator.LESS_THAN_OR_EQUALS,
+];
+
 const ENUM_OPERATORS = [Operator.EQUALS, Operator.NOT_EQUAL, Operator.IN, Operator.NOT_IN];
 const BOOLEAN_OPERATORS = [Operator.EQUALS, Operator.NOT_EQUAL];
 export const DEFAULT_OPERATOR = Operator.EQUALS;
@@ -44,6 +53,11 @@ export const getOperators = (type: PropertyType) => {
   if (isBooleanType(type)) {
     return BOOLEAN_OPERATORS.map(toOption);
   }
+
+  if (isDateTimeType(type)) {
+    return DATETIME_OPERATORS.map(toOption);
+  }
+
   return STRING_OPERATORS.map(toOption);
 };
 

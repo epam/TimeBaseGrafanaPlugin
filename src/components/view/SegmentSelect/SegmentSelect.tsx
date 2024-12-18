@@ -13,9 +13,7 @@ interface SegmentSelectProps {
 }
 
 export function SegmentSelect(props: SegmentSelectProps) {
-  const [Label, width, expanded, setExpanded] = useExpandableLabel(false);
-
-  console.log(width);
+  const [Label, expanded, setExpanded] = useExpandableLabel(false);
 
   return !expanded ? (
     <Label
@@ -30,10 +28,10 @@ export function SegmentSelect(props: SegmentSelectProps) {
   );
 }
 
-export const useExpandableLabel = (initialExpanded: boolean): [any, number, boolean, (expanded: boolean) => void] => {
+export const useExpandableLabel = (initialExpanded: boolean): [any, boolean, (expanded: boolean) => void] => {
   const ref = useRef<HTMLDivElement>(null);
   const [expanded, setExpanded] = useState<boolean>(initialExpanded);
-  const [width, setWidth] = useState(0);
+  const [, setWidth] = useState(0);
 
   const Label: any = ({ Component, onClick }: any) => (
     <div
@@ -53,5 +51,5 @@ export const useExpandableLabel = (initialExpanded: boolean): [any, number, bool
     </div>
   );
 
-  return [Label, width, expanded, setExpanded];
+  return [Label, expanded, setExpanded];
 };
