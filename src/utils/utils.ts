@@ -26,7 +26,9 @@ export const getFilterFields = (schema: StreamType[] | undefined) => {
         (isNumberType(field.fieldType.dataType) ||
           isStringType(field.fieldType.dataType) ||
           isBooleanType(field.fieldType.dataType) ||
-          isEnumType(field.fieldType.dataType))
+          isEnumType(field.fieldType.dataType) || 
+          isDateTimeType(field.fieldType.dataType)
+        )
     );
     listFields.push(...filteredFields.map((field: Field) => getTypeWithField(field.name, obj.type)));
   }
@@ -103,6 +105,10 @@ export const isEnumType = (type: PropertyType) => {
 
 export const isBooleanType = (type: PropertyType) => {
   return type === PropertyType.BOOLEAN;
+};
+
+export const isDateTimeType = (type: PropertyType) => {
+  return type === PropertyType.DATETIME;
 };
 
 export const showSpecialValues = (operator: Operator) => {

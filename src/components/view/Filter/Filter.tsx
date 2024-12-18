@@ -13,6 +13,7 @@ import {
   getFilterFields,
   getSelectedFieldType,
   isBooleanType,
+  isDateTimeType,
   isEnumType,
   isFloatType,
   isInFilters,
@@ -24,6 +25,10 @@ import {
 import { FieldLabel } from '../FieldLabels/FieldLabels';
 import { FieldValidation } from '../FieldValidation/FieldValidation';
 import { SegmentFrame } from '../SegmentFrame/SegmentFrame';
+import DateTimePicker from 'react-datetime-picker';
+import 'react-datetime-picker/dist/DateTimePicker.css';
+import 'react-calendar/dist/Calendar.css';
+import 'react-clock/dist/Clock.css';
 
 const VALUE_KEY = 'Value';
 const styles = css`
@@ -35,6 +40,25 @@ const styles = css`
   &.flex-justify {
     display: flex;
     justify-content: center;
+  }
+  &.datePicker button {
+    margin: 0px;
+    margin-right: 5px;
+    padding: 0;
+  }
+  &.datePicker .react-datetime-picker__button {
+    padding 0px;
+  }
+  &.datePicker svg {
+    stroke: white;
+    stroke-width: 1;
+  }
+  &.datePicker .react-datetime-picker__wrapper {
+    border: thin solid rgba(204, 204, 220, 0.2);
+    border-radius: 2px;
+  }
+  &.datePicker .react-calendar {
+    background-color: black;
   }
 `;
 
@@ -55,6 +79,7 @@ interface FilterState {
   selectedItem: SelectableValue<string> | undefined;
   filterValues: string[];
   fieldType: PropertyType | undefined;
+  dateValue: Date | null;
 }
 
 class Filter extends PureComponent<FilterProps, FilterState> {
@@ -64,6 +89,7 @@ class Filter extends PureComponent<FilterProps, FilterState> {
     selectedItem: void 0,
     filterValues: [],
     fieldType: void 0,
+    dateValue: new Date()
   };
 
   private customValues: Array<SelectableValue<string>> = [];
@@ -86,6 +112,7 @@ class Filter extends PureComponent<FilterProps, FilterState> {
       values,
       selectedItem,
       filterValues: nextProps.filterValues,
+      dateValue: nextProps.filterValues?.[0] ? new Date(nextProps.filterValues[0]) : null
     };
   }
 
@@ -182,6 +209,14 @@ class Filter extends PureComponent<FilterProps, FilterState> {
     this.emitValue(this.props.selectedField, this.props.selectedOperators, items.map((item) => item.value) as string[]);
   };
 
+  onDateChange = (date: any) => {
+    this.setState((state) => ({
+      ...state,
+      dateValue: date,
+    }));
+    this.emitValue(this.props.selectedField, this.props.selectedOperators, [date ? date.toISOString() : null]);
+  }
+
   onCreateOption = (v: string) => {
     this.customValues.push(toOption(v));
     this.state.filterValues.push(v);
@@ -237,6 +272,9 @@ class Filter extends PureComponent<FilterProps, FilterState> {
   };
 
   private getFilterValue = () => {
+    if (isDateTimeType(this.state.fieldType as PropertyType)) {
+      return [this.state.dateValue?.toISOString() as string];
+    }
     if (this.state.selectedItem?.value !== VALUE_KEY) {
       return [this.state.selectedItem?.value as string];
     }
@@ -261,7 +299,16 @@ class Filter extends PureComponent<FilterProps, FilterState> {
           allowCustomValue={false}
           onChange={this.onChangeOperator}
         />
-        {showSpecialValues(this.props.selectedOperators as Operator) ? (
+        {isDateTimeType(this.state.fieldType as PropertyType) ? 
+          <DateTimePicker 
+            className={cx('datePicker', styles)} 
+            onChange={this.onDateChange} 
+            value={this.state.dateValue} 
+            clearAriaLabel="Clear value"
+            disableClock={true} 
+            locale="en"
+            format="MM/dd/yy hh:mm:ss"/> : 
+          showSpecialValues(this.props.selectedOperators as Operator) ? (
           (isEnumType(this.state.fieldType as PropertyType) || isBooleanType(this.state.fieldType as PropertyType)) ?
           <Select
             width={15}
@@ -274,13 +321,12 @@ class Filter extends PureComponent<FilterProps, FilterState> {
           /> :
           <Input
             width={15}
-            value={this.state.filterValues[0] ?? ''}
+            value={this.state.filterValues?.[0] ?? ''}
             onKeyDown={this.onKeyPress}
             onChange={this.onChangeInputValue}
           />
-        ) : (
-          this.getContent()
-        )}
+        ) : this.getContent()
+        }
       </div>
     );
   }

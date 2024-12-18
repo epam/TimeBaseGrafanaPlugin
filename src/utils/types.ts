@@ -74,6 +74,7 @@ export enum PropertyType {
   SHORT = 'SHORT',
   BYTE = 'BYTE',
   BOOLEAN = 'BOOLEAN',
+  DATETIME = 'DATETIME',
 }
 
 export interface DataTypeDef {
