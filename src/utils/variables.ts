@@ -11,7 +11,7 @@ export const getReplacedValue = (value: any, scopedVars: { [key: string]: any })
 };
 export const usedInQuery = (variable: string, query: TimeBaseQuery) => {
   const name = '${' + variable + '}';
-  if (query.selectedStream === name || query.selectedSymbol === name || query.selectedGroups?.includes(name)) {
+  if (query.selectedStream === name || query.selectedSymbols.includes(name) || query.selectedGroups?.includes(name)) {
     return true;
   }
   const usedFilters = query.filters.filter((filter) => filter.field === name || filter.values?.includes(name));

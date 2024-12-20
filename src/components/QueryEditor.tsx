@@ -1,5 +1,5 @@
 import { QueryEditorProps, SelectableValue } from '@grafana/data';
-import { CascaderOption, Input, TextArea } from '@grafana/ui';
+import { CascaderOption, Input, MultiSelect, TextArea } from '@grafana/ui';
 import React, { PureComponent } from 'react';
 
 import { ALL_KEY, TimeBaseDataSource } from '../datasource';
@@ -50,16 +50,18 @@ import { SegmentSelect } from './view/SegmentSelect/SegmentSelect';
 import { TimeGrouping } from './view/TimeGrouping/TimeGrouping';
 import { css, cx } from '@emotion/css';
 import { QueryEditorModeSwitcher } from './QueryEditorModeSwitcher';
+import { from } from 'rxjs';
 
 interface QueryEditorState {
   validStreamControl: boolean;
   selectedStream: SelectableValue<string> | undefined;
   validSymbolControl: boolean;
-  selectedSymbol: SelectableValue<string> | undefined;
+  selectedSymbol: SelectableValue<string>[];
   schema: Schema | undefined;
   groupByViewOptions: Array<SelectableValue<string>>;
 
   invalidFieldsMap: { [key: string]: boolean };
+  symbols: string[]
 }
 
 export class QueryEditor extends PureComponent<
@@ -70,11 +72,12 @@ export class QueryEditor extends PureComponent<
     validStreamControl: true,
     selectedStream: void 0,
     validSymbolControl: true,
-    selectedSymbol: void 0,
+    selectedSymbol: [],
     schema: void 0,
     groupByViewOptions: [],
 
     invalidFieldsMap: {},
+    symbols: []
   };
 
   componentDidMount() {
@@ -99,7 +102,7 @@ export class QueryEditor extends PureComponent<
   static getDerivedStateFromProps(nextProps: QueryEditorProps<TimeBaseDataSource, TimeBaseQuery, MyDataSourceOptions>) {
     return {
       selectedStream: nextProps.query.selectedStream == null ? null : toOption(nextProps.query.selectedStream),
-      selectedSymbol: nextProps.query.selectedSymbol == null ? null : toOption(nextProps.query.selectedSymbol),
+      selectedSymbol: !nextProps.query.selectedSymbols?.length ? null : nextProps.query.selectedSymbols.map(toOption),
     };
   }
 
@@ -124,12 +127,34 @@ export class QueryEditor extends PureComponent<
           response.list.unshift(ALL_KEY);
         }
 
+        this.setState({
+          ...this.state,
+          symbols: response.list,
+        });
+
         return {
           options: response.list.map(toOption),
           hasMore: response.hasMore,
         };
       });
   };
+
+  loadAllSymbols = (search: string, loadedOptions: any[], selectedStream: string) => {
+    from(this.props.datasource
+      .getSymbols(
+        search || '',
+        selectedStream as string,
+        loadedOptions.length
+      )).subscribe(response => {
+        if (loadedOptions.length === 0) {
+          response.list.unshift(ALL_KEY);
+        }
+        this.setState({
+          ...this.state,
+          symbols: response.list,
+        });
+      })
+  } 
 
   getSelectOptions = (index: number) => {
     if (this.props.query.selects == null || this.props.query.selects[index] == null) {
@@ -187,6 +212,7 @@ export class QueryEditor extends PureComponent<
       selectedStream: selectedStream?.value,
     });
     this.fillMainData(selectedStream.value as string);
+    this.loadAllSymbols('', [], selectedStream.value as string);
   };
 
   addGroup = (selectedGroup: string[]) => {
@@ -311,7 +337,7 @@ export class QueryEditor extends PureComponent<
     if (symbolsTemplate == null) {
       this.props.onChange({
         ...this.props.query,
-        selectedSymbol: symbol.value as string,
+        selectedSymbols: [symbol.value as string],
       });
       this.setState((state) => ({ ...state, validSymbolControl: true }));
       this.requestData();
@@ -322,12 +348,26 @@ export class QueryEditor extends PureComponent<
       .then((response) => {
         this.props.onChange({
           ...this.props.query,
-          selectedSymbol: symbol.value as string,
+          selectedSymbols: [symbol.value as string],
         });
         this.setState((state) => ({ ...state, validSymbolControl: response?.list?.length !== 0 }));
         this.requestData();
       });
   };
+
+  onChangeSymbolList = (symbolList: SelectableValue<string>[]) => {
+    const allSymbolsChosen = !this.state.selectedSymbol.find(s => s.value === ALL_KEY) && symbolList.find(s => s.value === ALL_KEY);
+    
+    const selectedSymbols = allSymbolsChosen ? [{ value: ALL_KEY, label: ALL_KEY }] : 
+      (symbolList.length > 1 ? symbolList.filter(s => s.value !== ALL_KEY) : [...symbolList]);
+
+    this.setState((state) => ({ ...state, selectedSymbol: selectedSymbols }));
+    this.props.onChange({
+      ...this.props.query,
+      selectedSymbols: selectedSymbols.map(s => s.value as string),
+    });
+    this.requestData();
+  }
 
   onChangeField = (value: string, index: number) => {
     const [type, field] = separateTypeAndField(value);
@@ -387,8 +427,7 @@ export class QueryEditor extends PureComponent<
     if (
       !this.props.query.raw &&
       (this.props.query.selectedStream == null ||
-        this.props.query.selectedSymbol == null ||
-        this.props.query.selectedSymbol === '')
+        !this.props.query.selectedSymbols?.length)
     ) {
       return;
     }
@@ -468,7 +507,7 @@ export class QueryEditor extends PureComponent<
   };
 
   private fillMainData = (selectedStream: string) => {
-    const selectedSymbol = getReplacedValue(this.props.query.selectedSymbol, this.props.datasource.scopedVars);
+    const selectedSymbol = getReplacedValue(this.props.query.selectedSymbols?.[0], this.props.datasource.scopedVars);
     const symbolsTemplate = selectedSymbol != null && selectedSymbol !== ALL_KEY ? selectedSymbol : '';
 
     const symbols$ = this.props.datasource.getSymbols(symbolsTemplate, selectedStream, 0);
@@ -498,7 +537,7 @@ export class QueryEditor extends PureComponent<
         this.props.onChange({
           ...this.props.query,
           selects: [{ ...EMPTY_SELECT }],
-          selectedSymbol: ALL_KEY,
+          selectedSymbols: [ALL_KEY],
           selectedGroups: [],
           filters: [],
         });
@@ -548,6 +587,18 @@ export class QueryEditor extends PureComponent<
 
   onChangeMaxRecords = (event: React.ChangeEvent<HTMLInputElement>) => {
     this.props.onChange({ ...this.props.query, maxRecords: +event.target.value });
+  };
+
+  onKeyPress = (e: any) => {
+    if (
+      e.key === 'Backspace' ||
+      e.key === 'Delete' ||
+      (e.key === '-' && (e.target.value == null || (!e.target.value.includes('-') && e.target.selectionStart === 0)))
+    ) {
+      return;
+    }
+  
+    e.target.focus();
   };
 
   render() {
@@ -640,14 +691,16 @@ export class QueryEditor extends PureComponent<
                 <FieldValidation
                   invalid={this.state.validStreamControl && !this.state.validSymbolControl}
                   text={getReplacedValue(
-                    `No symbols [${this.state.selectedSymbol?.value}] in ${this.state.selectedStream?.value}.`,
+                    `No symbols [${this.state.selectedSymbol?.[0]?.value}] in ${this.state.selectedStream?.value}.`,
                     this.props.datasource.scopedVars
                   )}
                 >
-                  <SegmentSelect
+                  <MultiSelect
+                    options={this.state.symbols.map(toOption)}
+                    className={cx('mr-4 width-22')}
                     value={this.state.selectedSymbol}
-                    loadOptions={this.loadSymbols}
-                    onChange={this.onChangeSymbol}
+                    onKeyDown={this.onKeyPress}
+                    onChange={this.onChangeSymbolList}
                   />
                 </FieldValidation>
                 <div className="gf-form-label gf-form-label--grow"></div>

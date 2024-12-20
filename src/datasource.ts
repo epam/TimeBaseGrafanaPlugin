@@ -129,15 +129,14 @@ export class TimeBaseDataSource extends DataSourceApi<TimeBaseQuery, MyDataSourc
           target.selectedInterval?.isCustom ? null : target.selectedInterval?.value
         );
 
+        const symbols = target.selectedSymbols.filter(s => s !== ALL_KEY).map(s => getReplacedValue(s, options.scopedVars));
+
         return {
           refId: target.refId,
           stream: getReplacedValue(target.selectedStream, options.scopedVars),
           queryType: 'CUSTOM',
           view: target.requestType == null ? DATAFRAME_KEY : target.requestType,
-          symbols:
-            target.selectedSymbol != null && target.selectedSymbol !== '' && target.selectedSymbol !== ALL_KEY
-              ? [getReplacedValue(target.selectedSymbol, options.scopedVars)]
-              : [],
+          symbols,
           hide: target.hide,
           types: [],
           functions: getFunctions(target.selects, options.scopedVars),
