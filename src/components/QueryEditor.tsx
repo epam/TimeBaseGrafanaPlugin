@@ -50,7 +50,7 @@ import { SegmentSelect } from './view/SegmentSelect/SegmentSelect';
 import { TimeGrouping } from './view/TimeGrouping/TimeGrouping';
 import { css, cx } from '@emotion/css';
 import { QueryEditorModeSwitcher } from './QueryEditorModeSwitcher';
-import { from } from 'rxjs';
+import { filter, from } from 'rxjs';
 
 interface QueryEditorState {
   validStreamControl: boolean;
@@ -139,19 +139,36 @@ export class QueryEditor extends PureComponent<
       });
   };
 
-  loadAllSymbols = (search: string, loadedOptions: any[], selectedStream: string) => {
+  loadSchema(selectedStream: string) {
+    from(this.props.datasource.getStreamSchema(selectedStream))
+      .pipe(filter(Boolean))
+      .subscribe(schema => {
+        this.setState({
+          ...this.state,
+          schema
+        });
+      })
+  }
+
+  loadAllSymbols = (search: string, loadedOptions: any[], selectedStream: string, newStream: boolean) => {
     from(this.props.datasource
       .getSymbols(
         search || '',
         selectedStream as string,
         loadedOptions.length
-      )).subscribe(response => {
+      )).pipe(filter(Boolean)).subscribe(response => {
         if (loadedOptions.length === 0) {
           response.list.unshift(ALL_KEY);
         }
+        const symbolSet = new Set(this.state?.symbols);
+        if (!newStream) {
+          for (let symbol of response?.list) {
+            symbolSet.add(symbol);
+          }
+        }
         this.setState({
           ...this.state,
-          symbols: response.list,
+          symbols: !newStream ? Array.from(symbolSet) : response?.list
         });
       })
   } 
@@ -212,7 +229,8 @@ export class QueryEditor extends PureComponent<
       selectedStream: selectedStream?.value,
     });
     this.fillMainData(selectedStream.value as string);
-    this.loadAllSymbols('', [], selectedStream.value as string);
+    this.loadAllSymbols('', [], selectedStream.value as string, true);
+    this.loadSchema(selectedStream?.value as string);
   };
 
   addGroup = (selectedGroup: string[]) => {
@@ -356,9 +374,10 @@ export class QueryEditor extends PureComponent<
   };
 
   onChangeSymbolList = (symbolList: SelectableValue<string>[]) => {
-    const allSymbolsChosen = !this.state.selectedSymbol.find(s => s.value === ALL_KEY) && symbolList.find(s => s.value === ALL_KEY);
-    
-    const selectedSymbols = allSymbolsChosen ? [{ value: ALL_KEY, label: ALL_KEY }] : 
+    const allSymbolsChosen = !symbolList?.length || 
+      (!this.state.selectedSymbol?.find(s => s.value === ALL_KEY) && symbolList?.find(s => s.value === ALL_KEY));
+     
+    const selectedSymbols = (allSymbolsChosen || !symbolList?.length) ? [{ value: ALL_KEY, label: ALL_KEY }] : 
       (symbolList.length > 1 ? symbolList.filter(s => s.value !== ALL_KEY) : [...symbolList]);
 
     this.setState((state) => ({ ...state, selectedSymbol: selectedSymbols }));
@@ -528,7 +547,7 @@ export class QueryEditor extends PureComponent<
           selectedSymbol === '' ||
           selectedSymbol === ALL_KEY ||
           (symbols != null && symbols.list.length !== 0 && symbols.list.includes(selectedSymbol)),
-        schema,
+        // schema,
         invalidFieldsMap,
         validStreamControl: schema != null,
       }));
@@ -600,6 +619,10 @@ export class QueryEditor extends PureComponent<
   
     e.target.focus();
   };
+
+  onInputChange = (e: any) => {
+    this.loadAllSymbols(e, [], this.state.selectedStream?.value as string, false);
+  }
 
   render() {
     const filters = this.props.query.filters == null ? [] : this.props.query.filters;
@@ -701,6 +724,7 @@ export class QueryEditor extends PureComponent<
                     value={this.state.selectedSymbol}
                     onKeyDown={this.onKeyPress}
                     onChange={this.onChangeSymbolList}
+                    onInputChange={this.onInputChange}
                   />
                 </FieldValidation>
                 <div className="gf-form-label gf-form-label--grow"></div>
