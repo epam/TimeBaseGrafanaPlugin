@@ -1,5 +1,5 @@
 import { QueryEditorProps, SelectableValue } from '@grafana/data';
-import { CascaderOption, Input, MultiSelect, TextArea } from '@grafana/ui';
+import { CascaderOption, Input, MultiSelect, Select, TextArea } from '@grafana/ui';
 import React, { PureComponent } from 'react';
 
 import { ALL_KEY, TimeBaseDataSource } from '../datasource';
@@ -46,11 +46,10 @@ import { SegmentFrameFilter } from './view/Filter/Filter';
 import { FunctionComponent } from './view/Function/Function';
 import { SegmentFrame } from './view/SegmentFrame/SegmentFrame';
 import { CustomSelect } from './view/SegmentSelect/CustomAsyncSelect';
-import { SegmentSelect } from './view/SegmentSelect/SegmentSelect';
 import { TimeGrouping } from './view/TimeGrouping/TimeGrouping';
 import { css, cx } from '@emotion/css';
 import { QueryEditorModeSwitcher } from './QueryEditorModeSwitcher';
-import { delay, filter, from } from 'rxjs';
+import { delay, filter, from, take } from 'rxjs';
 
 interface QueryEditorState {
   validStreamControl: boolean;
@@ -61,7 +60,8 @@ interface QueryEditorState {
   groupByViewOptions: Array<SelectableValue<string>>;
 
   invalidFieldsMap: { [key: string]: boolean };
-  symbols: string[]
+  symbols: string[],
+  streams: string[]
 }
 
 export class QueryEditor extends PureComponent<
@@ -77,6 +77,7 @@ export class QueryEditor extends PureComponent<
     groupByViewOptions: [],
 
     invalidFieldsMap: {},
+    streams: [],
     symbols: []
   };
 
@@ -97,6 +98,8 @@ export class QueryEditor extends PureComponent<
         this.restoreView();
       }
     });
+
+    this.loadStreams('', []);
   }
 
   static getDerivedStateFromProps(
@@ -117,12 +120,18 @@ export class QueryEditor extends PureComponent<
   }
 
   loadStreams = (search: string, loadedOptions: any[]) => {
-    return this.props.datasource.getStreams(search == null ? '' : search, loadedOptions.length).then((response) => {
-      return {
-        options: response.list.map(toOption),
-        hasMore: response.hasMore,
-      };
-    });
+    return from(this.props.datasource.getStreams(search == null ? '' : search, loadedOptions.length))
+      .pipe(take(1))
+      .subscribe((response) => {
+        const streamSet = new Set(this.state.streams);
+        for (let stream of response.list) {
+          streamSet.add(stream);
+        }
+        this.setState({
+          ...this.state,
+          streams: Array.from(streamSet)
+        });
+      });
   };
 
   loadSymbols = (search: string, loadedOptions: any[]) => {
@@ -249,13 +258,15 @@ export class QueryEditor extends PureComponent<
   };
 
   onChangeStream = (selectedStream: SelectableValue<string>) => {
-    this.props.onChange({
-      ...this.props.query,
-      selectedStream: selectedStream?.value,
-    });
-    this.fillMainData(selectedStream.value as string);
-    this.loadAllSymbols('', [], selectedStream.value as string, true);
-    this.loadSchema(selectedStream?.value as string);
+    if (selectedStream?.value) {
+      this.props.onChange({
+        ...this.props.query,
+        selectedStream: selectedStream?.value,
+      });
+      this.fillMainData(selectedStream.value as string);
+      this.loadAllSymbols('', [], selectedStream.value as string, true);
+      this.loadSchema(selectedStream?.value as string);
+    }
   };
 
   addGroup = (selectedGroup: string[]) => {
@@ -623,7 +634,6 @@ export class QueryEditor extends PureComponent<
     const value = this.props.datasource.intervals.find(
       (interval: any) => interval.value === this.props.query.selectedInterval?.value
     );
-    console.log(value);
     return value || SPECIAL_VALUES[1];
   };
 
@@ -647,8 +657,12 @@ export class QueryEditor extends PureComponent<
     e.target.focus();
   };
 
-  onInputChange = (e: any) => {
+  onInputChange = (e: string) => {
     this.loadAllSymbols(e, [], this.state.selectedStream?.value as string, false);
+  }
+
+  onStreamInputChange = (e: string) => {
+    this.loadStreams(e, []);
   }
 
   render() {
@@ -682,11 +696,15 @@ export class QueryEditor extends PureComponent<
                       this.props.datasource.scopedVars
                     )}
                   >
-                    <SegmentSelect
+                    <Select
+                      backspaceRemovesValue={true}
+                      classNamePrefix="grafana-custom"
+                      className={cx('select width-10 z-100', commonStyles)}
                       value={this.state.selectedStream}
-                      loadOptions={this.loadStreams}
+                      options={this.state.streams.map(toOption)}
                       onChange={this.onChangeStream}
-                    />
+                      onInputChange={this.onStreamInputChange}
+                    ></Select>
                   </FieldValidation>
 
                   <div>
