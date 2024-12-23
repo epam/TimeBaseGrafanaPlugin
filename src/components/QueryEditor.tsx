@@ -50,7 +50,7 @@ import { SegmentSelect } from './view/SegmentSelect/SegmentSelect';
 import { TimeGrouping } from './view/TimeGrouping/TimeGrouping';
 import { css, cx } from '@emotion/css';
 import { QueryEditorModeSwitcher } from './QueryEditorModeSwitcher';
-import { filter, from } from 'rxjs';
+import { delay, filter, from } from 'rxjs';
 
 interface QueryEditorState {
   validStreamControl: boolean;
@@ -99,10 +99,20 @@ export class QueryEditor extends PureComponent<
     });
   }
 
-  static getDerivedStateFromProps(nextProps: QueryEditorProps<TimeBaseDataSource, TimeBaseQuery, MyDataSourceOptions>) {
+  static getDerivedStateFromProps(
+    nextProps: QueryEditorProps<TimeBaseDataSource, TimeBaseQuery, MyDataSourceOptions>, 
+    prevState: QueryEditorState) {
+      const selectedSymbolsProp = nextProps.query.selectedSymbols;
+      const symbolsInList = selectedSymbolsProp?.every(s => prevState.symbols.includes(s));
+      const selectedSymbols = selectedSymbolsProp?.length && symbolsInList ? selectedSymbolsProp.map(toOption) : [toOption(ALL_KEY)];
+
+      const validSymbolControl = !selectedSymbolsProp?.length || !!selectedSymbolsProp.includes(ALL_KEY) || 
+        selectedSymbolsProp.filter(Boolean).every(s => prevState.symbols.includes(s as string));
+
     return {
       selectedStream: nextProps.query.selectedStream == null ? null : toOption(nextProps.query.selectedStream),
-      selectedSymbol: !nextProps.query.selectedSymbols?.length ? null : nextProps.query.selectedSymbols.map(toOption),
+      selectedSymbol: selectedSymbols,
+      validSymbolControl
     };
   }
 
@@ -141,11 +151,19 @@ export class QueryEditor extends PureComponent<
 
   loadSchema(selectedStream: string) {
     from(this.props.datasource.getStreamSchema(selectedStream))
-      .pipe(filter(Boolean))
+      .pipe(filter(Boolean), delay(500))
       .subscribe(schema => {
+        const usedFields = getUsedFields(this.props.query.filters || [], this.props.query.selects || []);
+        const fieldsByType = getAllListFields(schema?.types);
+        const invalidFieldsMap: any = {};
+        for (const usedField of usedFields) {
+          invalidFieldsMap[usedField] = !fieldsByType.some((field) => field.value === usedField);
+        }
+
         this.setState({
           ...this.state,
-          schema
+          schema,
+          invalidFieldsMap
         });
       })
   }
@@ -166,11 +184,18 @@ export class QueryEditor extends PureComponent<
             symbolSet.add(symbol);
           }
         }
+
+        const allSymbols = !newStream ? Array.from(symbolSet) : response?.list;
+        const selectedSymbols = this.state.selectedSymbol;
+        const validSymbolControl = !selectedSymbols?.length || !!selectedSymbols.find(s => s.value === ALL_KEY) || 
+          selectedSymbols.filter(Boolean).map(s => s.value).every(s => allSymbols.includes(s as string));
+
         this.setState({
           ...this.state,
-          symbols: !newStream ? Array.from(symbolSet) : response?.list
+          symbols: allSymbols,
+          validSymbolControl
         });
-      })
+      });
   } 
 
   getSelectOptions = (index: number) => {
@@ -385,6 +410,8 @@ export class QueryEditor extends PureComponent<
       ...this.props.query,
       selectedSymbols: selectedSymbols.map(s => s.value as string),
     });
+
+    this.setState((state) => ({ ...state, validSymbolControl: true }));
     this.requestData();
   }
 
@@ -712,7 +739,8 @@ export class QueryEditor extends PureComponent<
                   <span className="gf-form-label width-8 query-keyword">SYMBOL</span>
                 </div>
                 <FieldValidation
-                  invalid={this.state.validStreamControl && !this.state.validSymbolControl}
+                  invalid={this.state.validStreamControl && !this.state.validSymbolControl && 
+                    this.state.selectedSymbol?.[0].value !== ALL_KEY }
                   text={getReplacedValue(
                     `No symbols [${this.state.selectedSymbol?.[0]?.value}] in ${this.state.selectedStream?.value}.`,
                     this.props.datasource.scopedVars
