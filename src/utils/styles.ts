@@ -1,4 +1,4 @@
-import { css } from 'emotion';
+import { css } from "@emotion/css";
 
 export const commonStyles = css`
   &.btn-cascader {
@@ -28,5 +28,8 @@ export const commonStyles = css`
   }
   &.mb-0 {
     margin-bottom: 0;
+  }
+  &.z-100 {
+    z-index: 100;
   }
 `;

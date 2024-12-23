@@ -27,7 +27,7 @@ import { Schema, TypeDef, Version } from './utils/types';
 import { extractType, separateTypeAndField } from './utils/utils';
 import { getReplacedValue, getVariables } from './utils/variables';
 import semver from 'semver';
-import { Observable, Subject, merge, toArray, map, mergeMap, forkJoin, from } from 'rxjs';
+import { Observable, Subject, merge, toArray, map, mergeMap, forkJoin, from, shareReplay } from 'rxjs';
 
 const HEADERS = { 'Content-Type': 'application/json' };
 const GRAFANA_API_PREFIX = '/grafana/v0';
@@ -129,15 +129,14 @@ export class TimeBaseDataSource extends DataSourceApi<TimeBaseQuery, MyDataSourc
           target.selectedInterval?.isCustom ? null : target.selectedInterval?.value
         );
 
+        const symbols = target.selectedSymbols.filter(s => s !== ALL_KEY).map(s => getReplacedValue(s, options.scopedVars));
+
         return {
           refId: target.refId,
           stream: getReplacedValue(target.selectedStream, options.scopedVars),
           queryType: 'CUSTOM',
           view: target.requestType == null ? DATAFRAME_KEY : target.requestType,
-          symbols:
-            target.selectedSymbol != null && target.selectedSymbol !== '' && target.selectedSymbol !== ALL_KEY
-              ? [getReplacedValue(target.selectedSymbol, options.scopedVars)]
-              : [],
+          symbols,
           hide: target.hide,
           types: [],
           functions: getFunctions(target.selects, options.scopedVars),
@@ -158,7 +157,7 @@ export class TimeBaseDataSource extends DataSourceApi<TimeBaseQuery, MyDataSourc
       });
     this.intervals = getIntervals(options.maxDataPoints as any, options.range);
 
-    const request$: Observable<FetchResponse> = this.fetchGrafanaBackend('POST', '/queries/select', options);
+    const request$: Observable<FetchResponse> = this.fetchGrafanaBackend('POST', '/queries/select', options).pipe(shareReplay(1));
 
     request$.subscribe((event) => {
       if (event.status !== 200) {
@@ -177,7 +176,7 @@ export class TimeBaseDataSource extends DataSourceApi<TimeBaseQuery, MyDataSourc
     return merge(...rawTargets, otherTargets).pipe(
       toArray(),
       map((data: DataQueryResponseData[]) => {
-        return { data: data };
+        return { data };
       })
     );
   }

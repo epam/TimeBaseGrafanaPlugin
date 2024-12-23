@@ -19,8 +19,8 @@ TimeBase plugin uses [TimeBase Web Admin](https://webadmin.timebase.info/api/v0/
 **IMPORTANT NOTICE**
 
 
-Supported TimeBase versions: `[5.5.6, 5.7.*]`
-Supported TimeBase Web Admin versions: `[0.5.5, 1.2.*]`
+Supported TimeBase versions: `[5.5.6, 5.7.*]`    
+Supported TimeBase Web Admin versions: `[0.5.5, 1.2.*]`     
 Supported Grafana versions: `[10.2+, 11+]`
 
 Other versions are rather incompatible or partially incompatible.
@@ -142,9 +142,10 @@ Time-series data is stored in [streams](https://kb.timebase.info/community/overv
 
 Time-series data is recorded in streams in a form of [Messages](https://kb.timebase.info/community/overview/messages). Each message has a `timestamp` (time and date of a message) and `symbol` (specific identifier of a data source like sensor id, trading instrument name etc) that serve for data indexing. You can select a specific symbol to sort stream data by, for example display all readings for a specific IoT sensor (sensor id is a symbol value in this case).
 
-* Use drop down list of symbols to select a specific symbol for your query or select **All()** to display data for all the available symbols.
+* Use drop down list of symbols to select a specific symbol/set of symbols for your query or select **All()** to display data for all the available symbols.
 
 > Available symbols are determined by the TimeBase Web Admin back end.
+> In symbol-dependent functions, such as bars, it is necessary to group by symbol in order for the function to work correctly with multiple symbols.
  
 
 #### Select
