@@ -37,7 +37,7 @@ export interface MySecureJsonData {
 
 export interface TimeBaseQuery extends DataQuery {
   selectedStream: string | null | undefined;
-  selectedSymbol: string | null;
+  selectedSymbols: string[];
   selectedInterval: SelectableValue<number> | null;
   selects: Select[];
   filters: Filter[];
