@@ -306,7 +306,7 @@ export class TimeBaseDataSource extends DataSourceApi<TimeBaseQuery, MyDataSourc
   }
 
   variableQuery(query: string): Observable<any[]> {
-    return this.fetch('POST', '/query', {
+    return this.fetch('POST', query.includes('symbols') ? '/unlimitedQuery' : '/query', {
       query: getReplacedValue(query, this.scopedVars),
       from: null,
       to: null,
