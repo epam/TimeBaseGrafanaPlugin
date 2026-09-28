@@ -12,7 +12,7 @@ This plugin provides a wide range of instruments for time-series data analysis a
 
 ## Prerequisites
 
-TimeBase plugin uses [TimeBase Web Admin](https://webadmin.timebase.info/api/v0/docs/index.html) REST API - the required component.
+TimeBase plugin uses [TimeBase Web Admin](https://webadmin56.staging.deltixhub.io/api/v0/docs/index.html) REST API - the required component.
 
 
 ---
@@ -20,10 +20,25 @@ TimeBase plugin uses [TimeBase Web Admin](https://webadmin.timebase.info/api/v0/
 
 
 Supported TimeBase versions: `[5.5.6, 5.7.*]`    
-Supported TimeBase Web Admin versions: `[0.5.5, 1.2.*]`     
+Supported TimeBase Web Admin versions: `[0.5.5, 1.2.*]`
+
+Supported Grafana versions depend on the plugin release:
+
+### Plugin `1.1.4`
+
 Supported Grafana versions: `[10.2+, 11+, 12+]`
 
-Other versions are rather incompatible or partially incompatible.
+### Plugin `1.2.0+`
+
+Supported Grafana versions:
+- `11.6.11+` (11.x)
+- `12.0.10+` / `12.1.7+` / `12.2.5+` (12.x)
+- `13.x`
+
+Minimum Grafana dependency (`plugin.json`):  
+`>=11.6.11 <12 || >=12.0.10 <12.1 || >=12.1.7 <12.2 || >=12.2.5`
+
+Older Grafana versions (including `10.x` and `11.0–11.6.10`) are not supported: the frontend requires `react/jsx-runtime` from the Grafana host (React 19 compatibility for Grafana 13).
 
 ---
 
@@ -76,7 +91,7 @@ Grafana plugin uses TimeBase as a data source. You can use more than one TimeBas
 
 #### Standard Dashboards
 
-> You can [import](https://grafana.com/docs/grafana/latest/dashboards/export-import/#import-dashboard) standard [Dashboards](https://github.com/epam/TimeBaseGrafanaPlugin/tree/main/dashboards) from the public repository. 
+> You can [import](https://grafana.com/docs/grafana/latest/dashboards/export-import/#import-dashboard) standard [Dashboards](https://github.com/epam/TimeBaseGrafanaPlugin/tree/main-1.1/dashboards) from the public repository. 
 
 ![](/src/img/dashboard1.png)
 

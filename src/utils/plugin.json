@@ -40,8 +40,8 @@
                 "path": "src/img/grafana_plugin_settings.png"
             }
         ],
-        "version": "1.0.12",
-        "updated": "2024-11-07"
+        "version": "%VERSION%",
+        "updated": "%TODAY%"
     },
     "routes": [
         {

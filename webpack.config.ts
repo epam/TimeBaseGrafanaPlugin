@@ -1,6 +1,9 @@
 import type { Configuration } from 'webpack';
 import { merge } from 'webpack-merge';
+import ReplaceInFileWebpackPlugin from 'replace-in-file-webpack-plugin';
 import grafanaConfig from './.config/webpack/webpack.config';
+import { DIST_DIR } from './.config/webpack/constants';
+import { getPackageJson } from './.config/webpack/utils';
 
 /**
  * Extends the Grafana scaffolded webpack config.
@@ -19,6 +22,25 @@ const config = async (env: unknown): Promise<Configuration> => {
 
   return merge(baseConfig, {
     externals: ['react/jsx-runtime', 'react/jsx-dev-runtime'],
+    plugins: [
+      // Base config only rewrites top-level dist/plugin.json
+      new ReplaceInFileWebpackPlugin([
+        {
+          dir: DIST_DIR,
+          files: ['utils/plugin.json'],
+          rules: [
+            {
+              search: /%VERSION%/g,
+              replace: getPackageJson().version,
+            },
+            {
+              search: /%TODAY%/g,
+              replace: new Date().toISOString().substring(0, 10),
+            },
+          ],
+        },
+      ]),
+    ],
   });
 };
 
